@@ -1,0 +1,108 @@
+<link rel="stylesheet" href="/public/css/register.css">
+
+<div class="register-container">
+    <h2>User Registration</h2>
+
+    <form action="/user/register" method="post" class="register-form">
+        <div class="form-group">
+            <label for="username">Username *</label>
+            <input type="text"
+                   id="username"
+                   name="username"
+                   required
+                   minlength="3"
+                   maxlength="50"
+                   placeholder="Enter username"
+                   value="{{formatDate.username}}"
+            >
+            <small>3-50 characters, must be unique</small>
+        </div>
+
+        <div class="form-group">
+            <label for="password">Password *</label>
+            <input
+                    type="password"
+                    id="password"
+                    name="password"
+                    required
+                    minlength="6"
+                    placeholder="Enter password"
+            >
+            <small>At least 6 characters</small>
+        </div>
+
+        <div class="form-group">
+            <label for="confirmPassword">Confirm Password *</label>
+            <input
+                    type="password"
+                    id="confirmPassword"
+                    name="confirmPassword"
+                    required
+                    placeholder="Re-enter password"
+            >
+        </div>
+
+        <div class="form-group">
+            <label for="fullName">Full Name</label>
+            <input
+                    type="text"
+                    id="fullName"
+                    name="fullName"
+                    maxlength="100"
+                    placeholder="Enter your full name"
+                    value="{{formData.fullName}}"
+            >
+        </div>
+
+        <div class="form-group">
+            <label for="birthday">Birthday</label>
+            <input
+                    type="date"
+                    id="birthday"
+                    name="birthday"
+                    value="{{formData.birthday}}"
+            >
+            <small>Select your birth date (YYYY-MM-DD)</small>
+        </div>
+
+        <div class="form-group">
+            <label for="bio">Biography</label>
+            <textarea
+                    id="bio"
+                    name="bio"
+                    rows="4"
+                    maxlength="500"
+                    placeholder="Tell us about yourself..."
+            >{{formData.bio}}</textarea>
+            <small>Maximum 500 characters</small>
+        </div>
+
+        <div class="form-group">
+            <label for="avatar">Choose Avatar</label>
+            <div class="avatar-selection">
+                {{#each avatars}}
+                    <div class="avatar-option">
+                        <input
+                                type="radio"
+                                id="avatar-{{this.id}}"
+                                name="avatarId"
+                                value="{{this.id}}"
+                                {{#if this.selected}}checked{{/if}}
+                        >
+
+                        <label for="avatar-{{this.id}}">
+                            <img src="{{this.icon_path}}" alt="{{this.name}}" class="avatar-preview">
+                            <span>{{this.name}}</span>
+                        </label>
+                    </div>
+                {{/each}}
+            </div>
+        </div>
+
+        <button type="submit" class="btn btn-register">Register</button>
+    </form>
+
+    <P class="login-link">
+        Already have an account? <a href="/user/login">Login here</a>
+    </P>
+</div>

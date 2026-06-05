@@ -1,0 +1,155 @@
+.register-container {
+    max-width: 650px;
+    margin: 40px auto;
+    padding: 40px;
+    border-radius: 16px;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+    text-align: center;
+}
+
+.register-container h2 {
+    color: #333;
+    margin-bottom: 30px;
+    font-size: 32px;
+    font-weight: 700;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+}
+
+.register-form .form-group {
+    margin-bottom: 20px;
+    text-align: left;
+    max-width: 450px;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.register-form label {
+    display: block;
+    margin-bottom: 8px;
+    font-weight: 600;
+    color: #555;
+    font-size: 14px;
+}
+
+.register-form input[type="text"],
+.register-form input[type="password"],
+.register-form input[type="date"],
+.register-form textarea {
+    width: 100%;
+    padding: 12px 16px;
+    border: 2px solid #e0e0e0;
+    border-radius: 10px;
+    font-size: 15px;
+    transition: all 0.3s ease;
+}
+
+.register-form input[type="text"]:focus,
+.register-form input[type="password"]:focus,
+.register-form input[type="date"]:focus,
+.register-form textarea:focus {
+    border-color: #667eea;
+    box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+}
+
+.register-form textarea {
+    resize: vertical;
+    min-height: 100px;
+}
+
+.register-form small {
+    display: block;
+    margin-top: 6px;
+    color: #999;
+    font-size: 12px;
+    font-style: italic;
+}
+
+.avatar-selection {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 10px;
+    margin-top: 15px;
+    flex-wrap: wrap;
+    padding: 15px;
+    background: #f8f9fa;
+    border-radius: 12px;
+}
+
+.avatar-option input[type="radio"] {
+    display: none;
+}
+
+.avatar-option label {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    cursor: pointer;
+    padding: 10px;
+    border: 2px solid #e0e0e0;
+    border-radius: 12px;
+    transition: all 0.3s ease;
+    min-width: 75px;
+}
+
+.avatar-option label:hover {
+    border-color: #667eea;
+    transform: translateY(-3px);
+    box-shadow: 0 4px 12px rgba(102, 126, 234, 0.2);
+}
+
+.avatar-option input[type="radio"]:checked + label {
+    border-color: #667eea;
+    background: linear-gradient(135deg, #f0f4ff 0%, #f8f0ff 100%);
+    box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+    transform: scale(1.05);
+}
+
+.avatar-preview {
+    width: 45px;
+    height: 45px;
+    border-radius: 50%;
+    object-fit: cover;
+    margin-bottom: 6px;
+    border: 2px solid transparent;
+    transition: border-color 0.3s;
+}
+
+.avatar-option input[type="radio"]:checked + label .avatar-preview {
+    border-color: #667eea;
+}
+
+.avatar-option label span {
+    font-size: 11px;
+    color: #666;
+    text-align: center;
+    font-weight: 500;
+}
+
+.register-form .btn-register {
+    width: 100%;
+    max-width: 450px;
+    padding: 14px;
+    margin: 30px auto 20px;
+    display: block;
+    font-size: 17px;
+    letter-spacing: 0.5px;
+}
+
+.login-link {
+    text-align: center;
+    margin-top: 25px;
+    color: #666;
+    font-size: 14px;
+}
+
+.login-link a {
+    color: #667eea;
+    font-weight: 600;
+    text-decoration: none;
+}
+
+.login-link a:hover {
+    color: #764ba2;
+    text-decoration: underline;
+}

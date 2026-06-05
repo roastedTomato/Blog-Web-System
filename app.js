@@ -10,16 +10,50 @@ const port = process.env.EXPRESS_PORT || 3000;
 
 // Setup Handlebars
 app.engine("handlebars", handlebars.create({
-    defaultLayout: null
+    defaultLayout:"main"
 }).engine);
 app.set("view engine", "handlebars");
 
 // Set up to read POSTed form data
 app.use(express.urlencoded({ extended: true }));
-app.use(express.json({}));
-
+app.use(express.json());
 
 // TODO: Your app here
+
+//setup cookie-parser
+const cookieParser = require("cookie-parser")
+app.use(cookieParser());
+
+//setup express-session
+const session = require("express-session");
+app.use(session({
+    resave: false,
+    saveUninitialized: false,
+    secret: "COMPX569"
+}));
+
+// Make the "user" session object available to all views
+app.use(function (req, res, next) {
+    res.locals.user = req.session.user;
+    next();
+});
+
+// Make the "public" folder available statically
+const path = require("path");
+app.use("/public", express.static(path.join(__dirname, "public")));
+
+//setup our routes
+const index = require("./routes/index-routes.js");
+app.use('/', index);
+
+const user = require("./routes/user-routes.js");
+app.use('/user', user);
+
+const article = require("./routes/article-routes.js");
+app.use('/article', article);
+
+const comment = require("./routes/comment-routes.js");
+app.use('/comment', comment);
 
 
 app.listen(port, function () {
