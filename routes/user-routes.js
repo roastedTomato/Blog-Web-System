@@ -128,7 +128,7 @@ router.post('/register', async (req, res) => {
     }
 });
 
-
+// GET /user/login - Show login form
 router.get('/login',async(req,res)=>{
     if(req.session.user){
         return res.redirect('/');
@@ -140,6 +140,7 @@ router.get('/login',async(req,res)=>{
     });
 });
 
+// POST /user/login - Verify login
 router.post('/login',async(req,res)=>{
     const {username,password} = req.body;
 
@@ -188,6 +189,15 @@ router.post('/login',async(req,res)=>{
             error: 'Login failed. Please try again.'
         });
     }
+})
+
+// GET /user/logout - Destroy Session
+router.get('./logout',async (req,res)=>{
+    req.session.destroy(()=>{
+        //clear also the cookie in the web
+        res.clearCookie('connect.sid')
+        res.redirect('/');
+    })
 })
 
 router.get('/', (req, res) => {
