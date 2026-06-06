@@ -2,6 +2,7 @@ const express = require('express');
 const router = express.Router();
 const bcrypt = require('bcryptjs');
 const db = require('../modules/database');
+const {query} = require("express");
 
 // GET /user/register - Show registration form
 router.get('/register', async (req, res) => {
@@ -126,6 +127,68 @@ router.post('/register', async (req, res) => {
         res.status(500).send('Registration failed');
     }
 });
+
+
+router.get('/login',async(req,res)=>{
+    if(req.session.user){
+        return res.redirect('/');
+    }
+
+    res.render('users/login',{
+        title:'User Login',
+        error:null
+    });
+});
+
+router.post('/login',async(req,res)=>{
+    const {username,password} = req.body;
+
+    //1.Validation null
+    if(!username || !password){
+        return res.status(400).render('/users/login',{
+            title:'User Login',
+            error:'Username and Password are required'
+        })
+    }
+
+    try{
+        //2.Find user by username
+        const users = await db.query('SELECT * FROM users WHERE username = ?',[username]);
+        if(users.length === 0){
+            return res.status(401).render('users/login',{
+                title:'User Login',
+                error:'Invalid username or password'
+            });
+        }
+        const user = users[0];
+
+        //3.Verify password using bcrypt.compare
+        const isPasswordValid = await bcrypt.compare(password,user.password);
+        if(!isPasswordValid){
+            return res.status(401).render('users/login',{
+                title:'User Login',
+                error:'Invalid username or password'
+            })
+        }
+
+        //4.Create session
+        req.session.user = {
+            id:user.id,
+            username:user.username,
+            fullName: user.fullName,
+            avatarUrl: user.avatarUrl
+        }
+
+        //5.Redirect to home page
+        res.redirect('/');
+    }catch (err){
+        console.error('Login error:', err);
+        res.status(500).render('users/login', {
+            title: 'User Login',
+            error: 'Login failed. Please try again.'
+        });
+    }
+})
 
 router.get('/', (req, res) => {
     res.send('User routes');
