@@ -1,13 +1,53 @@
 const express = require('express');
 const router = express.Router();
-const bcrypt = require('bcryptjs');
-const db = require('../modules/database');
-const {query} = require("express");
+const userDAO = require('../modules/users-dao');
+
+function requireLogin(req, res, next) {
+    if (!req.session.user) {
+        return res.redirect('/user/login');
+    }
+    next();
+}
+
+async function renderProfilePage(req, res, options = {}) {
+    const { error = null, success = null } = options;
+    const userId = req.session.user.id;
+
+    try {
+        const user = await userDAO.findById(userId);
+
+        if (!user) {
+            req.session.destroy();
+            return res.redirect('/user/login');
+        }
+
+        const avatars = await userDAO.getActiveAvatars();
+        const avatarsWithSelection = userDAO.markSelectedAvatar(avatars, user.avatar_url);
+
+        res.render('users/profile', {
+            title: 'Edit Profile',
+            user: user,
+            avatars: avatarsWithSelection,
+            error: error,
+            success: success
+        });
+    } catch (err) {
+        console.error('Render profile page error:', err);
+        res.status(500).render('error', {
+            title: 'Error',
+            message: 'Failed to load profile page'
+        });
+    }
+}
+
+router.get('/', (req, res) => {
+    res.redirect('/');
+});
 
 // GET /user/register - Show registration form
 router.get('/register', async (req, res) => {
     try {
-        const avatars = await db.query('SELECT * FROM avatars WHERE is_active = 1 ORDER BY display_order');
+        const avatars = await userDAO.getActiveAvatars();
 
         if (avatars.length > 0) {
             avatars[0].selected = true;
@@ -36,7 +76,7 @@ router.post('/register', async (req, res) => {
 
     // 1. Validation: Check required fields
     if (!username || !password || !confirmPassword) {
-        const avatars = await db.query('SELECT * FROM avatars WHERE is_active = 1 ORDER BY display_order');
+        const avatars = await userDAO.getActiveAvatars();
         return res.status(400).render('users/create', {
             title: 'User Registration',
             avatars: avatars,
@@ -47,7 +87,7 @@ router.post('/register', async (req, res) => {
 
     // 2. Validation: Check passwords match
     if (password !== confirmPassword) {
-        const avatars = await db.query('SELECT * FROM avatars WHERE is_active = 1 ORDER BY display_order');
+        const avatars = await userDAO.getActiveAvatars();
         return res.status(400).render('users/create', {
             title: 'User Registration',
             avatars: avatars,
@@ -58,7 +98,7 @@ router.post('/register', async (req, res) => {
 
     // 3. Validation: Check password length
     if (password.length < 6) {
-        const avatars = await db.query('SELECT * FROM avatars WHERE is_active = 1 ORDER BY display_order');
+        const avatars = await userDAO.getActiveAvatars();
         return res.status(400).render('users/create', {
             title: 'User Registration',
             avatars: avatars,
@@ -69,7 +109,7 @@ router.post('/register', async (req, res) => {
 
     // 4. Validation: Check username length
     if (username.length < 3 || username.length > 50) {
-        const avatars = await db.query('SELECT * FROM avatars WHERE is_active = 1 ORDER BY display_order');
+        const avatars = await userDAO.getActiveAvatars();
         return res.status(400).render('users/create', {
             title: 'User Registration',
             avatars: avatars,
@@ -80,10 +120,10 @@ router.post('/register', async (req, res) => {
 
     try {
         // 5. Check if username already exists
-        const existingUser = await db.query('SELECT id FROM users WHERE username = ?', [username]);
+        const existingUser = await userDAO.isUsernameTaken();
 
         if (existingUser.length > 0) {
-            const avatars = await db.query('SELECT * FROM avatars WHERE is_active = 1 ORDER BY display_order');
+            const avatars = await userDAO.getActiveAvatars();
             return res.status(400).render('users/create', {
                 title: 'User Registration',
                 avatars: avatars,
@@ -92,34 +132,21 @@ router.post('/register', async (req, res) => {
             });
         }
 
-        // 6. Hash password with bcrypt (hash + salt)
-        const saltRounds = 10;
-        const passwordHash = await bcrypt.hash(password, saltRounds);
+        // 6. Create new user
+        const userId = await userDAO.create({
+            username,
+            password,
+            fullName,
+            birthday,
+            bio,
+            avatarId
+        });
 
-        // 7. Get avatar URL
-        let avatarUrl = '/public/avatarImages/default.png';
-        if (avatarId) {
-            const avatar = await db.query('SELECT icon_path FROM avatars WHERE id = ? AND is_active = 1', [avatarId]);
-            if (avatar.length > 0) {
-                avatarUrl = avatar[0].icon_path;
-            }
-        }
+        //7. Create session (auto login)
+        const user = await userDAO.findById(userId);
+        req.session.user = userDAO.buildSessionObject(user);
 
-        // 8. Insert new user into database
-        const result = await db.query(
-            'INSERT INTO users (username, password_hash, full_name, birthday, bio, avatar_url) VALUES (?, ?, ?, ?, ?, ?)',
-            [username, passwordHash, fullName || null, birthday || null, bio || null, avatarUrl]
-        );
-
-        // 9. Create session (auto login)
-        req.session.user = {
-            id: result.insertId,
-            username: username,
-            fullName: fullName,
-            avatarUrl: avatarUrl
-        };
-
-        // 10. Redirect to home page
+        //8. Redirect to home page
         res.redirect('/');
 
     } catch (err) {
@@ -154,17 +181,16 @@ router.post('/login',async(req,res)=>{
 
     try{
         //2.Find user by username
-        const users = await db.query('SELECT * FROM users WHERE username = ?',[username]);
-        if(users.length === 0){
+        const user = await userDAO.findByUsername(username);
+        if(!user){
             return res.status(401).render('users/login',{
                 title:'User Login',
                 error:'Invalid username or password'
             });
         }
-        const user = users[0];
 
         //3.Verify password using bcrypt.compare
-        const isPasswordValid = await bcrypt.compare(password,user.password);
+        const isPasswordValid = await userDAO.verifyPassword(password,user.password);
         if(!isPasswordValid){
             return res.status(401).render('users/login',{
                 title:'User Login',
@@ -173,12 +199,7 @@ router.post('/login',async(req,res)=>{
         }
 
         //4.Create session
-        req.session.user = {
-            id:user.id,
-            username:user.username,
-            fullName: user.fullName,
-            avatarUrl: user.avatarUrl
-        }
+        req.session.user = userDAO.buildSessionObject(user);
 
         //5.Redirect to home page
         res.redirect('/');
@@ -192,7 +213,7 @@ router.post('/login',async(req,res)=>{
 })
 
 // GET /user/logout - Destroy Session
-router.get('./logout',async (req,res)=>{
+router.get('/logout',async (req,res)=>{
     req.session.destroy(()=>{
         //clear also the cookie in the web
         res.clearCookie('connect.sid')
@@ -200,8 +221,54 @@ router.get('./logout',async (req,res)=>{
     })
 })
 
+// GET /user/profile - Show user profile
+router.get('/profile',requireLogin, async(req,res)=>{
+    await renderProfilePage(req, res)
+});
+
+router.post('/profile',requireLogin, async(req,res)=>{
+    const {username, fullName, birthday, bio, avatarId} = req.body;
+    const userId = req.session.user.id;
+
+    try{
+        //1.check if username is being changed and if it's already taken
+        if(username !== req.session.user.username){
+            const usernameExists = await userDAO.isUsernameTaken(username,userId);
+
+            if(usernameExists){
+                return await renderProfilePage(req,res,{
+                    error:'Username already exists. Please choose a different one.'
+                });
+            }
+        }
+
+        //2.update user profile
+        await userDAO.updateProfile(userId,{
+            username,
+            fullName,
+            birthday,
+            bio,
+            avatarId
+        })
+
+        //3.update session
+        const updatedUser = await userDAO.findById(userId);
+        req.session.user = userDAO.buildSessionObject(updatedUser);
+
+        //4. Render profile with success message
+        await renderProfilePage(req,res,{
+            success:'Profile updated successfully'
+        });
+    }catch (err) {
+        console.error('Update profile error:', err);
+        res.status(500).render('users/profile',{
+            error: 'Edit profile failed. Please try again.'
+        });
+    }
+})
+
 router.get('/', (req, res) => {
-    res.send('User routes');
+    res.render('index');
 });
 
 module.exports = router;
