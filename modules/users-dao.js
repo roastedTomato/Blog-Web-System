@@ -14,7 +14,19 @@ async function findById(userId) {
         'SELECT id, username, full_name, birthday, bio, avatar_url, created_at FROM users WHERE id = ?',
         [userId]
     );
-    return users.length > 0 ? users[0] : null;
+     if(users.length === 0){
+         return null;
+     }
+     const user = users[0];
+
+     if(user.birthday){
+         const date = new Date(user.birthday);
+         if (!isNaN(date.getTime())) {
+             user.birthday = date.toISOString().split('T')[0];
+         }
+     }
+
+    return user;
 }
 
 async function getActiveAvatars() {
