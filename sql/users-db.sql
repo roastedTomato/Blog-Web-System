@@ -25,10 +25,8 @@ CREATE TABLE avatars (
      id INT AUTO_INCREMENT PRIMARY KEY COMMENT 'Avatar ID',
      name VARCHAR(100) NOT NULL COMMENT 'Avatar name',
      icon_path VARCHAR(255) NOT NULL COMMENT 'Icon path',
-     is_active TINYINT(1) DEFAULT 1 COMMENT 'Is active',
      display_order INT DEFAULT 0 COMMENT 'Display order',
-     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP COMMENT 'Creation time',
-     INDEX idx_active (is_active)
+     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP COMMENT 'Creation time'
 );
 
 -- 3. articles table - Articles
