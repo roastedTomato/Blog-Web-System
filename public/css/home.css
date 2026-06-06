@@ -50,6 +50,16 @@
     padding: 14px 30px;
 }
 
+.btn-editProfile{
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+}
+
+.btn-logout{
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+}
+
 .btn-register{
     background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
     color: white;
@@ -58,6 +68,14 @@
 .btn-login{
     background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
     color: white;
+}
+
+.btn-editProfile:hover {
+    background: linear-gradient(135deg, #5568d3 0%, #63408a 100%);
+}
+
+.btn-logout:hover {
+    background: linear-gradient(135deg, #5568d3 0%, #63408a 100%);
 }
 
 .btn-register:hover {

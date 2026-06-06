@@ -198,7 +198,7 @@ router.post('/login',async(req,res)=>{
 
     //1.Validation null
     if(!username || !password){
-        return res.status(400).render('/users/login',{
+        return res.status(400).render('users/login',{
             title:'User Login',
             error:'Username and Password are required'
         })

@@ -27,7 +27,7 @@ async function getAvatarUrlById(avatarId) {
     }
 
     const avatar = await db.query(
-        'SELECT icon_path FROM avatars WHERE id = ? AND is_active = 1',
+        'SELECT icon_path FROM avatars WHERE id = ?',
         [avatarId]
     );
 

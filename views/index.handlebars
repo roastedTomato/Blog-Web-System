@@ -5,9 +5,13 @@
 
     {{#if user}}
         <div class="user-info">
-            <p>Hello, {{user.name}}! ^^</p>
+            <p>Hello, {{user.fullName}}({{user.username}})! ^^</p>
         </div>
-        <a href=""></a>
+        <div class="action-buttons">
+            <a href="/user/profile" class="btn btn-editProfile">Edit Profile</a>
+            <a href="/user/logout" class="btn btn-logout" onclick="return confirm('Are you sure you want to logout?')">Logout</a>
+        </div>
+
     {{else}}
         <p>Please register or login to continue.</p>
         <div class="action-buttons">
