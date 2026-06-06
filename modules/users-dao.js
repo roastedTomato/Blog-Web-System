@@ -1,4 +1,4 @@
-const db = require('modules/database');
+const db = require('./database');
 const bcrypt = require('bcryptjs');
 
 //User Data Access Object (DAO)
@@ -103,14 +103,7 @@ async function verifyPassword(newPassword, oldHashedPassword) {
     return await bcrypt.compare(newPassword, oldHashedPassword);
 }
 
-
-//4.delete
-async function deleteById(userId) {
-    const result = await db.query('DELETE FROM users WHERE id = ?', [userId]);
-    return result.affectedRows > 0;
-}
-
-//5.others
+//4.others
 function markSelectedAvatar(avatars, userAvatarUrl) {
     return avatars.map(avatar => ({
         ...avatar,
@@ -134,6 +127,7 @@ module.exports = {
     isUsernameTaken,
     create,
     updateProfile,
+    updatePassword,
     markSelectedAvatar,
     verifyPassword,
     buildSessionObject

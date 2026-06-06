@@ -40,9 +40,34 @@ async function renderProfilePage(req, res, options = {}) {
     }
 }
 
-router.get('/', (req, res) => {
-    res.redirect('/');
-});
+//Change password
+async function handleChangePassword(userId, currentPassword,newPassword, confirmPassword) {
+    // 1. Validation: Check if all password fields are provided
+    if ( !newPassword || !confirmPassword) {
+        throw new Error('All password fields are required');
+    }
+
+    // 2. Validation: Check new password length
+    if (newPassword.length < 6) {
+        throw new Error('New password must be at least 6 characters long');
+    }
+
+    // 3. Validation: Check if new passwords match
+    if (newPassword !== confirmPassword) {
+        throw new Error('New passwords do not match');
+    }
+
+    //4. Validation: Check current password
+    const isPasswordValid = await userDAO.verifyPassword(confirmPassword,newPassword);
+    if(!isPasswordValid){
+        throw new Error('Current password is incorrect');
+    }
+
+    // 5. Update password
+    await userDAO.updatePassword(userId, newPassword);
+
+    return true;
+}
 
 // GET /user/register - Show registration form
 router.get('/register', async (req, res) => {
@@ -120,7 +145,7 @@ router.post('/register', async (req, res) => {
 
     try {
         // 5. Check if username already exists
-        const existingUser = await userDAO.isUsernameTaken();
+        const existingUser = await userDAO.isUsernameTaken(username);
 
         if (existingUser.length > 0) {
             const avatars = await userDAO.getActiveAvatars();
@@ -190,7 +215,7 @@ router.post('/login',async(req,res)=>{
         }
 
         //3.Verify password using bcrypt.compare
-        const isPasswordValid = await userDAO.verifyPassword(password,user.password);
+        const isPasswordValid = await userDAO.verifyPassword(password,user.password_hash);
         if(!isPasswordValid){
             return res.status(401).render('users/login',{
                 title:'User Login',
@@ -266,6 +291,19 @@ router.post('/profile',requireLogin, async(req,res)=>{
         });
     }
 })
+
+// POST /user/change-password - Change password (separate route)
+router.post('/change-password', requireLogin, async (req, res) => {
+    const {currentPassword, newPassword, confirmPassword } = req.body;
+    const userId = req.session.user.id;
+
+    try {
+        await handleChangePassword(userId, currentPassword, newPassword, confirmPassword);
+        return res.redirect('/user/profile?success=Password+changed+successfully');
+    } catch (err) {
+        return res.redirect(`/user/profile?error=${encodeURIComponent(err.message)}`);
+    }
+});
 
 router.get('/', (req, res) => {
     res.render('index');

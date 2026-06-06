@@ -1,0 +1,137 @@
+<link rel="stylesheet" href="/public/css/profile.css">
+
+<div class="profile-container">
+    <h2>Edit Profile</h2>
+
+    {{#if error}}
+        <div class="alert alert-error">
+            {{error}}
+        </div>
+    {{/if}}
+
+    {{#if success}}
+        <div class="alert alert-success">
+            {{success}}
+        </div>
+    {{/if}}
+
+    <form action="/user/profile" method="post" class="profile-from">
+        <div class="form-group">
+            <label for="username">Username *</label>
+            <input type="text"
+                   id="username"
+                   name="username"
+                   required
+                   minlength="3"
+                   maxlength="50"
+                   placeholder="Enter username"
+                   value="{{user.username}}"
+            >
+            <small>3-50 characters, must be unique</small>
+        </div>
+
+        <div class="form-group">
+            <label for="fullName">Full Name</label>
+            <input
+                    type="text"
+                    id="fullName"
+                    name="fullName"
+                    maxlength="100"
+                    placeholder="Enter your full name"
+                    value="{{user.fullName}}"
+            >
+        </div>
+
+        <div class="form-group">
+            <label for="birthday">Birthday</label>
+            <input
+                    type="date"
+                    id="birthday"
+                    name="birthday"
+                    value="{{formData.birthday}}"
+            >
+            <small>Select your birthdate (DD-MM-YYYY)</small>
+        </div>
+
+        <div class="form-group">
+            <label for="bio">Biography</label>
+            <textarea
+                    id="bio"
+                    name="bio"
+                    rows="4"
+                    maxlength="500"
+                    placeholder="Tell us about yourself..."
+            >{{user.bio}}</textarea>
+            <small>Maximum 500 characters</small>
+        </div>
+
+        <div class="form-group">
+            <label for="avatar">Choose Avatar</label>
+            <div class="avatar-selection">
+                {{#each avatars}}
+                    <div class="avatar-option">
+                        <input
+                                type="radio"
+                                id="avatar-{{this.id}}"
+                                name="avatarId"
+                                value="{{this.id}}"
+                                {{#if this.selected}}checked{{/if}}
+                        >
+
+                        <label for="avatar-{{this.id}}">
+                            <img src="{{this.icon_path}}" alt="{{this.name}}" class="avatar-preview">
+                            <span>{{this.name}}</span>
+                        </label>
+                    </div>
+                {{/each}}
+            </div>
+        </div>
+        <button type="submit" class="btn btn-change">Save changes</button>
+    </form>
+
+    <hr class="section-divider">
+
+    <h3>Change Password</h3>
+    <form action="/user/change-password" method="post" class="password-form">
+        <div class="form-group">
+            <label for="currentPassword">Password *</label>
+            <input
+                    type="password"
+                    id="currentPassword"
+                    name="currentPassword"
+                    minlength="6"
+                    placeholder="Enter your current password"
+            >
+        </div>
+
+        <div class="form-group">
+            <label for="newPassword">New Password *</label>
+            <input
+                    type="password"
+                    id="newPassword"
+                    name="newPassword"
+                    minlength="6"
+                    placeholder="Enter new password"
+            >
+            <small>At least 6 characters</small>
+        </div>
+
+        <div class="form-group">
+            <label for="confirmPassword">Confirm New Password *</label>
+            <input
+                    type="password"
+                    id="confirmPassword"
+                    name="confirmPassword"
+                    placeholder="Re-enter new password"
+            >
+        </div>
+
+        <button type="submit" class="btn btn-changePassword">Change Password</button>
+    </form>
+
+    <div class="profile-actions">
+        <a href="/" class="btn btn-home">Back to Home</a>
+        <a href="/user/logout" class="btn btn-logout" onclick="return confirm('Are you sure you want to logout?')">Logout</a>
+    </div>
+
+</div>
