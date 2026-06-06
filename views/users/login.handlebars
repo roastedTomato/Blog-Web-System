@@ -9,9 +9,9 @@
         </div>
     {{/if}}
 
-    <from action="/user/login" method="post" class="login-form">
-        <div calss="from-group">
-            <label for=username"">Username</label>
+    <form action="/user/login" method="post" class="login-form">
+        <div class="from-group">
+            <label for="username">Username</label>
             <input
                     type="text"
                     id="username"
@@ -21,10 +21,10 @@
             >
         </div>
 
-        <div calss="from-group">
-            <label for=password"">Password</label>
+        <div class="from-group">
+            <label for="password">Password</label>
             <input
-                    type="text"
+                    type="password"
                     id="password"
                     name="password"
                     required
@@ -33,9 +33,9 @@
         </div>
 
         <button type="submit" class="btn btn-login">Login</button>
-    </from>
+    </form>
 
-    <P class="register-link">
+    <p class="register-link">
         Don't have an account? <a href="/user/register">Register here</a>
-    </P>
+    </p>
 </div>

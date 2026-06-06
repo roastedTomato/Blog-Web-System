@@ -58,7 +58,8 @@ async function handleChangePassword(userId, currentPassword,newPassword, confirm
     }
 
     //4. Validation: Check current password
-    const isPasswordValid = await userDAO.verifyPassword(confirmPassword,newPassword);
+    const user = await userDAO.findById(userId);
+    const isPasswordValid = await userDAO.verifyPassword(currentPassword,user.password_hash);
     if(!isPasswordValid){
         throw new Error('Current password is incorrect');
     }
