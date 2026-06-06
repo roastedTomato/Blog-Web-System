@@ -40,35 +40,6 @@ async function renderProfilePage(req, res, options = {}) {
     }
 }
 
-//Change password
-async function handleChangePassword(userId, currentPassword,newPassword, confirmPassword) {
-    // 1. Validation: Check if all password fields are provided
-    if ( !newPassword || !confirmPassword) {
-        throw new Error('All password fields are required');
-    }
-
-    // 2. Validation: Check new password length
-    if (newPassword.length < 6) {
-        throw new Error('New password must be at least 6 characters long');
-    }
-
-    // 3. Validation: Check if new passwords match
-    if (newPassword !== confirmPassword) {
-        throw new Error('New passwords do not match');
-    }
-
-    //4. Validation: Check current password
-    const user = await userDAO.findById(userId);
-    const isPasswordValid = await userDAO.verifyPassword(currentPassword,user.password_hash);
-    if(!isPasswordValid){
-        throw new Error('Current password is incorrect');
-    }
-
-    // 5. Update password
-    await userDAO.updatePassword(userId, newPassword);
-
-    return true;
-}
 
 // GET /user/register - Show registration form
 router.get('/register', async (req, res) => {
@@ -249,7 +220,8 @@ router.get('/logout',async (req,res)=>{
 
 // GET /user/profile - Show user profile
 router.get('/profile',requireLogin, async(req,res)=>{
-    await renderProfilePage(req, res)
+    const{error= null, success = null} = req.query;
+    await renderProfilePage(req, res,{error,success})
 });
 
 router.post('/profile',requireLogin, async(req,res)=>{
@@ -299,7 +271,7 @@ router.post('/change-password', requireLogin, async (req, res) => {
     const userId = req.session.user.id;
 
     try {
-        await handleChangePassword(userId, currentPassword, newPassword, confirmPassword);
+        await userDAO.changePassword(userId, currentPassword, newPassword, confirmPassword);
         return res.redirect('/user/profile?success=Password+changed+successfully');
     } catch (err) {
         return res.redirect(`/user/profile?error=${encodeURIComponent(err.message)}`);

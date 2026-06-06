@@ -11,7 +11,7 @@ async function findByUsername(username) {
 
 async function findById(userId) {
     const users = await db.query(
-        'SELECT id, username, full_name, birthday, bio, avatar_url, created_at FROM users WHERE id = ?',
+        'SELECT id, username, full_name, birthday, bio, avatar_url, password_hash, created_at FROM users WHERE id = ?',
         [userId]
     );
      if(users.length === 0){
@@ -99,7 +99,29 @@ async function updateProfile(userId, updateData) {
     return true;
 }
 
-async function updatePassword(userId, newPassword) {
+async function verifyPassword(inputPassword, oldHashedPassword) {
+    return await bcrypt.compare(inputPassword, oldHashedPassword);
+}
+
+async function changePassword(userId, currentPassword,newPassword, confirmPassword) {
+    if ( !currentPassword||!newPassword || !confirmPassword) {
+        throw new Error('All password fields are required');
+    }
+
+    if (newPassword.length < 6 ) {
+        throw new Error('New password must be at least 6 characters long');
+    }
+
+    if (newPassword !== confirmPassword) {
+        throw new Error('New passwords do not match');
+    }
+
+    const user = await findById(userId);
+    const isPasswordValid = await verifyPassword(currentPassword,user.password_hash);
+    if(!isPasswordValid){
+        throw new Error('Current password is incorrect');
+    }
+
     const saltRounds = 10;
     const passwordHash = await bcrypt.hash(newPassword, saltRounds);
 
@@ -109,10 +131,6 @@ async function updatePassword(userId, newPassword) {
     );
 
     return true;
-}
-
-async function verifyPassword(newPassword, oldHashedPassword) {
-    return await bcrypt.compare(newPassword, oldHashedPassword);
 }
 
 //4.others
@@ -139,7 +157,7 @@ module.exports = {
     isUsernameTaken,
     create,
     updateProfile,
-    updatePassword,
+    changePassword,
     markSelectedAvatar,
     verifyPassword,
     buildSessionObject
