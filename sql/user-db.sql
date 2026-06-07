@@ -1,13 +1,13 @@
 
 DROP TABLE IF EXISTS likes;
-DROP TABLE IF EXISTS comment;
-DROP TABLE IF EXISTS article;
-DROP TABLE IF EXISTS avatar;
-DROP TABLE IF EXISTS user;
+DROP TABLE IF EXISTS comments;
+DROP TABLE IF EXISTS articles;
+DROP TABLE IF EXISTS avatars;
+DROP TABLE IF EXISTS users;
 
 
 -- 1. users table - User information
-CREATE TABLE user (
+CREATE TABLE users (
        id INT AUTO_INCREMENT PRIMARY KEY COMMENT 'User ID',
        username VARCHAR(50) NOT NULL UNIQUE COMMENT 'Username',
        password_hash VARCHAR(255) NOT NULL COMMENT 'Hashed password',
@@ -20,8 +20,8 @@ CREATE TABLE user (
        INDEX idx_username (username)
 );
 
--- 2. avatar table - Preset avatar list
-CREATE TABLE avatar (
+-- 2. avatars table - Preset avatar list
+CREATE TABLE avatars (
      id INT AUTO_INCREMENT PRIMARY KEY COMMENT 'Avatar ID',
      name VARCHAR(100) NOT NULL COMMENT 'Avatar name',
      icon_path VARCHAR(255) NOT NULL COMMENT 'Icon path',
@@ -30,7 +30,7 @@ CREATE TABLE avatar (
 );
 
 -- 3. articles table - Articles
-CREATE TABLE article (
+CREATE TABLE articles (
       id INT AUTO_INCREMENT PRIMARY KEY COMMENT 'Article ID',
       title VARCHAR(255) NOT NULL COMMENT 'Title',
       content TEXT NOT NULL COMMENT 'Content',
@@ -38,13 +38,13 @@ CREATE TABLE article (
       author_id INT NOT NULL COMMENT 'Author ID',
       created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP COMMENT 'Creation time',
       updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT 'Update time',
-      FOREIGN KEY (author_id) REFERENCES user(id) ON DELETE CASCADE,
+      FOREIGN KEY (author_id) REFERENCES users(id) ON DELETE CASCADE,
       INDEX idx_author (author_id),
       INDEX idx_created (created_at)
 );
 
 -- 4. comments table - Comments (supports nesting)
-CREATE TABLE comment
+CREATE TABLE comments
 (
     id         INT AUTO_INCREMENT PRIMARY KEY COMMENT 'Comment ID',
     content    TEXT NOT NULL COMMENT 'Comment content',
@@ -53,9 +53,9 @@ CREATE TABLE comment
     parent_id  INT       DEFAULT NULL COMMENT 'Parent comment ID (supports nesting)',
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP COMMENT 'Creation time',
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT 'Update time',
-    FOREIGN KEY (user_id) REFERENCES user (id) ON DELETE CASCADE,
-    FOREIGN KEY (article_id) REFERENCES article (id) ON DELETE CASCADE,
-    FOREIGN KEY (parent_id) REFERENCES comment (id) ON DELETE CASCADE,
+    FOREIGN KEY (user_id) REFERENCES users (id) ON DELETE CASCADE,
+    FOREIGN KEY (article_id) REFERENCES articles (id) ON DELETE CASCADE,
+    FOREIGN KEY (parent_id) REFERENCES comments (id) ON DELETE CASCADE,
     INDEX      idx_article (article_id),
     INDEX      idx_user (user_id),
     INDEX      idx_parent (parent_id)
@@ -67,13 +67,13 @@ CREATE TABLE likes (
        article_id INT NOT NULL COMMENT 'Article ID',
        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP COMMENT 'Like time',
        PRIMARY KEY (user_id, article_id) COMMENT 'Composite primary key to prevent duplicate likes',
-       FOREIGN KEY (user_id) REFERENCES user(id) ON DELETE CASCADE,
-       FOREIGN KEY (article_id) REFERENCES article(id) ON DELETE CASCADE,
+       FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
+       FOREIGN KEY (article_id) REFERENCES articles(id) ON DELETE CASCADE,
        INDEX idx_article (article_id)
 );
 
--- Insert preset avatar sample data
-INSERT INTO avatar (name, icon_path, display_order) VALUES
+-- Insert preset avatars sample data
+INSERT INTO avatars (name, icon_path, display_order) VALUES
      ('Default Avatar', '/public/avatarImages/default.png', 1),
      ('Cat', '/public/avatarImages/cat.png', 2),
      ('Dog', '/public/avatarImages/dog.png', 3),
@@ -84,15 +84,15 @@ INSERT INTO avatar (name, icon_path, display_order) VALUES
      ('Bear', '/public/avatarImages/bear.png', 8);
 
 -- Insert sample user data
-INSERT INTO user (username, password_hash, full_name, birthday, bio, avatar_url) VALUES
+INSERT INTO users (username, password_hash, full_name, birthday, bio, avatar_url) VALUES
     ('alice', '$2b$10$abcdefghijklmnopqrstuuABCDEFGHIJKLMNOPQRSTUVWXYZ01234', 'Alice Johnson', '1995-03-15', 'Love coding and coffee!', '/public/avatarImages/cat.png'),
     ('bob', '$2b$10$abcdefghijklmnopqrstuuABCDEFGHIJKLMNOPQRSTUVWXYZ01234', 'Bob Smith', '1998-07-22', 'Travel enthusiast and photographer', '/public/avatarImages/dog.png'),
     ('charlie', '$2b$10$abcdefghijklmnopqrstuuABCDEFGHIJKLMNOPQRSTUVWXYZ01234', 'Charlie Brown', '2000-11-08', 'Student learning web development', '/public/avatarImages/panda.png'),
     ('diana', '$2b$10$abcdefghijklmnopqrstuuABCDEFGHIJKLMNOPQRSTUVWXYZ01234', 'Diana Prince', '1997-01-30', 'Tech blogger and AI researcher', '/public/avatarImages/fox.png'),
     ('eve', '$2b$10$abcdefghijklmnopqrstuuABCDEFGHIJKLMNOPQRSTUVWXYZ01234', 'Eve Wilson', '1999-05-12', 'Full-stack developer', '/public/avatarImages/rabbit.png');
 
--- Insert sample article data
-INSERT INTO article (title, content, image_url, author_id) VALUES
+-- Insert sample articles data
+INSERT INTO articles (title, content, image_url, author_id) VALUES
     ('Getting Started with Node.js', 'Node.js is a powerful runtime that lets you build scalable network applications using JavaScript. In this article, we will explore the basics of Node.js and how to set up your first project...', '/public/articleImages/nodejs-intro.png', 1),
     ('Top 10 Travel Destinations in 2026', 'Traveling is one of the best ways to broaden your horizons. Here are my top 10 recommended destinations for 2026, from the beaches of Bali to the mountains of Switzerland...', '/public/articleImages/travel-2026.png', 2),
     ('Understanding Database Design', 'Database design is crucial for building efficient applications. This guide covers normalization, relationships, and best practices for creating robust database schemas...', '/public/articleImages/database-design.png', 3),
@@ -102,7 +102,7 @@ INSERT INTO article (title, content, image_url, author_id) VALUES
     ('Photography Tips for Beginners', 'Photography is both an art and a science. In this article, I share essential tips for capturing stunning photos, from understanding lighting to composition techniques...', '/public/articleImages/photography-tips.png', 2);
 
 -- Insert sample comment data
-INSERT INTO comment (content, user_id, article_id, parent_id) VALUES
+INSERT INTO comments (content, user_id, article_id, parent_id) VALUES
     ('Great introduction to Node.js! Very helpful for beginners.', 2, 1, NULL),
     ('Thanks for sharing! Could you write more about Express framework?', 3, 1, NULL),
     ('I would love to write about Express next week!', 1, 1, 2),
@@ -150,8 +150,8 @@ INSERT INTO likes (user_id, article_id) VALUES
     (5, 7);
 
 
-SELECT * FROM article;
-SELECT * FROM user;
+SELECT * FROM articles;
+SELECT * FROM users;
 SELECT * FROM likes;
-SELECT * FROM avatar;
-SELECT * FROM comment;
+SELECT * FROM avatars;
+SELECT * FROM comments;
