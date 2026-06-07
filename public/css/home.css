@@ -1,7 +1,7 @@
 .home-container {
     max-width: 800px;
-    margin: 80px auto;
-    padding: 50px 40px;
+    margin: 20px auto;
+    padding: 40px 40px;
     background: white;
     border-radius: 20px;
     box-shadow: 0 15px 50px rgba(0,0,0,0.2);
@@ -20,21 +20,7 @@
     color: #666;
     font-size: 18px;
     margin-bottom: 30px;
-    line-height: 1.6;
-}
-
-.home-container .user-info {
-    background: linear-gradient(135deg, #f0f4ff 0%, #f8f0ff 100%);
-    padding: 20px;
-    border-radius: 12px;
-    margin: 20px 0;
-}
-
-.home-container .user-info p {
-    color: #333;
-    font-size: 20px;
-    font-weight: 600;
-    margin: 0;
+    line-height: 2.0;
 }
 
 .action-buttons {
