@@ -154,3 +154,27 @@
     color: #764ba2;
     text-decoration: underline;
 }
+
+/* Username availability status */
+.username-status {
+    display: block;
+    margin-top: 8px;
+    font-size: 14px;
+    font-weight: 600;
+    min-height: 20px;
+    transition: all 0.3s ease;
+}
+
+.username-status.checking {
+    color: #999;
+    font-style: italic;
+}
+
+.username-status.available {
+    color: #28a745;
+}
+
+.username-status.taken {
+    color: #dc3545;
+}
+

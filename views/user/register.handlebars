@@ -15,6 +15,7 @@
                    placeholder="Enter username"
                    value="{{formatDate.username}}"
             >
+            <span id="username-status" class="username-status"></span>
             <small>3-50 characters, must be unique</small>
         </div>
 
@@ -106,3 +107,45 @@
         Already have an account? <a href="/user/login">Login here</a>
     </P>
 </div>
+
+<script>
+    const usernameInput = document.getElementById('username');
+    const usernameStatus = document.getElementById('username-status');
+    let checkTimeout = null;
+
+    usernameInput.addEventListener('input',function(){
+        const username = this.value.trim();
+
+        if(checkTimeout){
+            clearTimeout(checkTimeout);
+        }
+
+        usernameStatus.className = 'username-status';
+        usernameStatus.textContent='';
+
+        if(username === ''){
+            return;
+        }
+
+        checkTimeout = setTimeout(()=>{
+            checkUsernameAvailability(username);
+        },500)
+    });
+
+    //send fetch
+    async function checkUsernameAvailability(username){
+        usernameStatus.textContent = 'Checking...';
+        usernameStatus.className = 'username-status checking';
+
+        const response = await fetch(`/user/check-username?username=${encodeURIComponent(username)}`);
+        const data = await response.json();
+
+        if (data.available) {
+            usernameStatus.textContent = '✓ ' + data.message;
+            usernameStatus.className = 'username-status available';
+        } else {
+            usernameStatus.textContent = '✗ ' + data.message;
+            usernameStatus.className = 'username-status taken';
+        }
+    }
+</script>

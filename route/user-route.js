@@ -1,6 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const userDAO = require('../modules/user-dao');
+const {json} = require("express");
 
 function requireLogin(req, res, next) {
     if (!req.session.user) {
@@ -93,30 +94,8 @@ router.post('/register', async (req, res) => {
         });
     }
 
-    // 3. Validation: Check password length
-    if (password.length < 6) {
-        const avatars = await userDAO.getActiveAvatars();
-        return res.status(400).render('users/create', {
-            title: 'User Registration',
-            avatars: avatars,
-            formData: { username, fullName, birthday, bio },
-            error: 'Password must be at least 6 characters long'
-        });
-    }
-
-    // 4. Validation: Check username length
-    if (username.length < 3 || username.length > 50) {
-        const avatars = await userDAO.getActiveAvatars();
-        return res.status(400).render('users/create', {
-            title: 'User Registration',
-            avatars: avatars,
-            formData: { username, fullName, birthday, bio },
-            error: 'Username must be between 3 and 50 characters'
-        });
-    }
-
     try {
-        // 5. Check if username already exists
+        // 3. Check if username already exists
         const isTaken = await userDAO.isUsernameTaken(username);
 
         if (isTaken) {
@@ -129,7 +108,7 @@ router.post('/register', async (req, res) => {
             });
         }
 
-        // 6. Create new user
+        // 4. Create new user
         const userId = await userDAO.create({
             username,
             password,
@@ -139,11 +118,11 @@ router.post('/register', async (req, res) => {
             avatarId
         });
 
-        //7. Create session (auto login)
+        // 5. Create session (auto login)
         const user = await userDAO.findById(userId);
         req.session.user = userDAO.buildSessionObject(user);
 
-        //8. Redirect to home page
+        //6. Redirect to home page
         res.redirect('/');
 
     } catch (err) {
@@ -278,6 +257,22 @@ router.post('/change-password', requireLogin, async (req, res) => {
         return res.redirect(`/user/profile?error=${encodeURIComponent(err.message)}`);
     }
 });
+
+// GET /Fetch check username is taken
+router.get('/check-username',async(req,res)=>{
+    const {username} = req.query;
+
+    if(!username || username.trim() === ''){
+        return res.json({available:false,message:"Username cannot be null"})
+    }
+
+    const isTaken = await userDAO.isUsernameTaken(username);
+    if(isTaken){
+        return res.json({available:false,message:"Username is already taken"})
+    } else{
+        return res.json({available:true,message:"Username is available"})
+    }
+})
 
 router.get('/', (req, res) => {
     res.render('index');
