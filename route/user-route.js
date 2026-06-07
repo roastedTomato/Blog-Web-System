@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const userDAO = require('../modules/users-dao');
+const userDAO = require('../modules/user-dao');
 
 function requireLogin(req, res, next) {
     if (!req.session.user) {
@@ -117,11 +117,11 @@ router.post('/register', async (req, res) => {
 
     try {
         // 5. Check if username already exists
-        const existingUser = await userDAO.isUsernameTaken(username);
+        const isTaken = await userDAO.isUsernameTaken(username);
 
-        if (existingUser.length > 0) {
+        if (isTaken) {
             const avatars = await userDAO.getActiveAvatars();
-            return res.status(400).render('users/create', {
+            return res.status(400).render('users/register', {
                 title: 'User Registration',
                 avatars: avatars,
                 formData: { username, fullName, birthday, bio },
@@ -224,6 +224,7 @@ router.get('/profile',requireLogin, async(req,res)=>{
     await renderProfilePage(req, res,{error,success})
 });
 
+// POST /user/profile - Change user profile
 router.post('/profile',requireLogin, async(req,res)=>{
     const {username, fullName, birthday, bio, avatarId} = req.body;
     const userId = req.session.user.id;
