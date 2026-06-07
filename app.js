@@ -10,7 +10,17 @@ const port = process.env.EXPRESS_PORT || 3000;
 
 // Setup Handlebars
 app.engine("handlebars", handlebars.create({
-    defaultLayout:"main"
+    defaultLayout:"main",
+    helpers: {
+        formatDate: function(date) {
+            if (!date) return '';
+            const d = new Date(date);
+            const year = d.getFullYear();
+            const month = d.toLocaleString('en-US', { month: 'short' });
+            const day = d.getDate();
+            return `${day} ${month} ${year}`;
+        }
+    }
 }).engine);
 app.set("view engine", "handlebars");
 
