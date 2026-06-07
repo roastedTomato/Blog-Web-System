@@ -43,16 +43,16 @@ const path = require("path");
 app.use("/public", express.static(path.join(__dirname, "public")));
 
 //setup our routes
-const index = require("./route/index-routes.js");
+const index = require("./routes/index-routes.js");
 app.use('/', index);
 
-const user = require("./route/user-route.js");
+const user = require("./routes/user-routes.js");
 app.use('/user', user);
 
-const article = require("./route/article-routes.js");
+const article = require("./routes/article-routes.js");
 app.use('/article', article);
 
-const comment = require("./route/comment-routes.js");
+const comment = require("./routes/comment-routes.js");
 app.use('/comment', comment);
 
 
