@@ -1,18 +1,18 @@
 <link rel="stylesheet" href="/public/css/home.css">
-<link rel="stylesheet" href="/public/css/article.css">
 
 <div class="home-container">
     <h1>Welcome to Our Blog Platform</h1>
 
     {{#if user}}
         <div class="user-info">
-            <p>Hello, {{user.fullName}}({{user.username}})! ^^</p>
+            <p>Hello, {{user.fullName}} ({{user.username}})! ^^</p>
         </div>
         <div class="action-buttons">
             <a href="/user/profile" class="btn btn-editProfile">Edit Profile</a>
+            <a href="/article/my" class="btn btn-my-articles">My Articles</a>
+            <a href="/article/create" class="btn btn-create">Create Article</a>
             <a href="/user/logout" class="btn btn-logout" onclick="return confirm('Are you sure you want to logout?')">Logout</a>
         </div>
-
     {{else}}
         <p>Please register or login to continue.</p>
         <div class="action-buttons">
@@ -20,100 +20,8 @@
             <a href="/user/login" class="btn btn-login">Login</a>
         </div>
     {{/if}}
-</div>
 
-<hr class="section-divider">
-
-<div class="articles-preview">
-    <div class="list-header">
-        <h2>Latest Articles</h2>
-
-        <div class="sort-form">
-            <label>Sort by：</label>
-            <select id="sortBy">
-                <option value="date" {{#if (eq currentSort 'date')}}selected{{/if}}>Publish date</option>
-                <option value="title" {{#if (eq currentSort 'title')}}selected{{/if}}>Title</option>
-                <option value="username" {{#if (eq currentSort 'username')}}selected{{/if}}>Username</option>
-            </select>
-
-            <select id="sortOrder">
-                <option value="DESC" {{#if (eq currentOrder 'DESC')}}selected{{/if}}>Desc</option>
-                <option value="ASC" {{#if (eq currentOrder 'ASC')}}selected{{/if}}>Asc</option>
-            </select>
-        </div>
-    </div>
-
-    <div id="articlesList" class="articles-simple-list">
-        {{#each articles}}
-            <article class="article-simple-item">
-                <img src="{{this.author_avatar}}" alt="avatar" class="article-avatar">
-                <div class="article-info">
-                    <h3 class="article-simple-title"><span>{{this.title}}</span></h3>
-                    <div class="article-simple-meta">
-                        <span class="author-name">{{this.author_full_name}}</span>
-                        <span class="article-date">{{formatDate this.created_at}}</span>
-                    </div>
-                </div>
-                <a href="/article/{{this.id}}" class="link-read-more">Read more</a>
-            </article>
-        {{/each}}
-    </div>
-
-    <div id="noArticles" class="no-articles" style="display: {{#if articles.length}}none{{else}}block{{/if}};">
-        <p>No article yet.</p>
+    <div class="home-cta">
+        <a href="/article" class="btn btn-browse">Browse All Articles</a>
     </div>
 </div>
-
-<script>
-    const sortBy = document.getElementById('sortBy');
-    const sortOrder = document.getElementById('sortOrder');
-    const articlesList = document.getElementById('articlesList');
-    const noArticles = document.getElementById('noArticles');
-
-    function formatDate(dateStr) {
-        const date = new Date(dateStr);
-        return date.toLocaleDateString();
-    }
-
-    async function loadArticles() {
-        const sort = sortBy.value;
-        const order = sortOrder.value;
-
-        try {
-            const res = await fetch(`/?sort=${sort}&order=${order}&json=1`);
-            const data = await res.json();
-
-            if (!data.articles || data.articles.length === 0) {
-                articlesList.style.display = 'none';
-                noArticles.style.display = 'block';
-                return;
-            }
-
-            let html = '';
-            data.articles.forEach(article => {
-                html += `
-                <article class="article-simple-item">
-                    <img src="${article.author_avatar}" alt="avatar" class="article-avatar">
-                    <div class="article-info">
-                        <h3 class="article-simple-title"><span>${article.title}</span></h3>
-                        <div class="article-simple-meta">
-                            <span class="author-name">${article.author_full_name}</span>
-                            <span class="article-date">${formatDate(article.created_at)}</span>
-                        </div>
-                    </div>
-                    <a href="/article/${article.id}" class="link-read-more">Read more</a>
-                </article>
-                `;
-            });
-
-            articlesList.innerHTML = html;
-            articlesList.style.display = 'flex';
-            noArticles.style.display = 'none';
-        } catch (e) {
-            console.error('Load error:', e);
-        }
-    }
-
-    sortBy.addEventListener('change', loadArticles);
-    sortOrder.addEventListener('change', loadArticles);
-</script>
