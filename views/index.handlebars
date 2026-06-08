@@ -1,4 +1,5 @@
 <link rel="stylesheet" href="/public/css/home.css">
+<link rel="stylesheet" href="/public/css/article.css">
 
 <div class="home-container">
     <h1>Welcome to Our Blog Platform</h1>
@@ -17,6 +18,37 @@
         <div class="action-buttons">
             <a href="/user/register" class="btn btn-register">Register</a>
             <a href="/user/login" class="btn btn-login">Login</a>
+        </div>
+    {{/if}}
+</div>
+
+<hr class="section-divider">
+
+<div class="articles-preview">
+    <h2>Latest Articles</h2>
+
+    {{#if articles.length}}
+        <div class="articles-simple-list">
+            {{#each articles}}
+                <article class="article-simple-item">
+                    <img src="{{this.author_avatar}}" alt="author-avatar" class="article-avatar">
+
+                    <div class="article-info">
+                        <h3 class="article-simple-title">
+                            <span>{{this.title}}</span>
+                        </h3>
+                        <div class="article-simple-meta">
+                            <span class="author-name">{{this.author_full_name}}</span>
+                            <span class="author-data">{{formatDate this.created_at}}</span>
+                        </div>
+                    </div>
+                    <a href="/article/{{this.id}}" class="link-read-more">Read more</a>
+                </article>
+            {{/each}}
+        </div>
+    {{else}}
+        <div class="no-arctiles">
+            <p>No article yet.</p>
         </div>
     {{/if}}
 </div>
