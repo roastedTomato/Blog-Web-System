@@ -8,6 +8,10 @@ router.get('/', async (req, res) => {
 
     const articles = await articleDAO.getAllArticles(sortBy, order);
 
+    if (req.query.json) {
+        return res.json({ articles });
+    }
+
     res.render('index', {
         title: 'Home',
         articles: articles,

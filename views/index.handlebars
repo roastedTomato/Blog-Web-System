@@ -28,43 +28,92 @@
     <div class="list-header">
         <h2>Latest Articles</h2>
 
-        <form action="/" method="get" class="sort-form">
+        <div class="sort-form">
             <label>Sort by：</label>
-            <select name="sort" onchange="this.form.submit()">
+            <select id="sortBy">
                 <option value="date" {{#if (eq currentSort 'date')}}selected{{/if}}>Publish date</option>
                 <option value="title" {{#if (eq currentSort 'title')}}selected{{/if}}>Title</option>
                 <option value="username" {{#if (eq currentSort 'username')}}selected{{/if}}>Username</option>
             </select>
 
-            <select name="order" onchange="this.form.submit()">
+            <select id="sortOrder">
                 <option value="DESC" {{#if (eq currentOrder 'DESC')}}selected{{/if}}>Desc</option>
                 <option value="ASC" {{#if (eq currentOrder 'ASC')}}selected{{/if}}>Asc</option>
             </select>
-        </form>
+        </div>
     </div>
 
-    {{#if articles.length}}
-        <div class="articles-simple-list">
-            {{#each articles}}
-                <article class="article-simple-item">
-                    <img src="{{this.author_avatar}}" alt="author-avatar" class="article-avatar">
+    <div id="articlesList" class="articles-simple-list">
+        {{#each articles}}
+            <article class="article-simple-item">
+                <img src="{{this.author_avatar}}" alt="avatar" class="article-avatar">
+                <div class="article-info">
+                    <h3 class="article-simple-title"><span>{{this.title}}</span></h3>
+                    <div class="article-simple-meta">
+                        <span class="author-name">{{this.author_full_name}}</span>
+                        <span class="article-date">{{formatDate this.created_at}}</span>
+                    </div>
+                </div>
+                <a href="/article/{{this.id}}" class="link-read-more">Read more</a>
+            </article>
+        {{/each}}
+    </div>
 
+    <div id="noArticles" class="no-articles" style="display: {{#if articles.length}}none{{else}}block{{/if}};">
+        <p>No article yet.</p>
+    </div>
+</div>
+
+<script>
+    const sortBy = document.getElementById('sortBy');
+    const sortOrder = document.getElementById('sortOrder');
+    const articlesList = document.getElementById('articlesList');
+    const noArticles = document.getElementById('noArticles');
+
+    function formatDate(dateStr) {
+        const date = new Date(dateStr);
+        return date.toLocaleDateString();
+    }
+
+    async function loadArticles() {
+        const sort = sortBy.value;
+        const order = sortOrder.value;
+
+        try {
+            const res = await fetch(`/?sort=${sort}&order=${order}&json=1`);
+            const data = await res.json();
+
+            if (!data.articles || data.articles.length === 0) {
+                articlesList.style.display = 'none';
+                noArticles.style.display = 'block';
+                return;
+            }
+
+            let html = '';
+            data.articles.forEach(article => {
+                html += `
+                <article class="article-simple-item">
+                    <img src="${article.author_avatar}" alt="avatar" class="article-avatar">
                     <div class="article-info">
-                        <h3 class="article-simple-title">
-                            <span>{{this.title}}</span>
-                        </h3>
+                        <h3 class="article-simple-title"><span>${article.title}</span></h3>
                         <div class="article-simple-meta">
-                            <span class="author-name">{{this.author_full_name}}</span>
-                            <span class="article-date">{{formatDate this.created_at}}</span>
+                            <span class="author-name">${article.author_full_name}</span>
+                            <span class="article-date">${formatDate(article.created_at)}</span>
                         </div>
                     </div>
-                    <a href="/article/{{this.id}}" class="link-read-more">Read more</a>
+                    <a href="/article/${article.id}" class="link-read-more">Read more</a>
                 </article>
-            {{/each}}
-        </div>
-    {{else}}
-        <div class="no-articles">
-            <p>No article yet.</p>
-        </div>
-    {{/if}}
-</div>
+                `;
+            });
+
+            articlesList.innerHTML = html;
+            articlesList.style.display = 'flex';
+            noArticles.style.display = 'none';
+        } catch (e) {
+            console.error('Load error:', e);
+        }
+    }
+
+    sortBy.addEventListener('change', loadArticles);
+    sortOrder.addEventListener('change', loadArticles);
+</script>
