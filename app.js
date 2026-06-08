@@ -19,6 +19,9 @@ app.engine("handlebars", handlebars.create({
             const month = d.toLocaleString('en-US', { month: 'short' });
             const day = d.getDate();
             return `${day} ${month} ${year}`;
+        },
+        eq: function(a, b) {
+            return a === b;
         }
     }
 }).engine);

@@ -25,7 +25,23 @@
 <hr class="section-divider">
 
 <div class="articles-preview">
-    <h2>Latest Articles</h2>
+    <div class="list-header">
+        <h2>Latest Articles</h2>
+
+        <form action="/" method="get" class="sort-form">
+            <label>Sort by：</label>
+            <select name="sort" onchange="this.form.submit()">
+                <option value="date" {{#if (eq currentSort 'date')}}selected{{/if}}>Publish date</option>
+                <option value="title" {{#if (eq currentSort 'title')}}selected{{/if}}>Title</option>
+                <option value="username" {{#if (eq currentSort 'username')}}selected{{/if}}>Username</option>
+            </select>
+
+            <select name="order" onchange="this.form.submit()">
+                <option value="DESC" {{#if (eq currentOrder 'DESC')}}selected{{/if}}>Desc</option>
+                <option value="ASC" {{#if (eq currentOrder 'ASC')}}selected{{/if}}>Asc</option>
+            </select>
+        </form>
+    </div>
 
     {{#if articles.length}}
         <div class="articles-simple-list">
@@ -39,7 +55,7 @@
                         </h3>
                         <div class="article-simple-meta">
                             <span class="author-name">{{this.author_full_name}}</span>
-                            <span class="author-data">{{formatDate this.created_at}}</span>
+                            <span class="article-date">{{formatDate this.created_at}}</span>
                         </div>
                     </div>
                     <a href="/article/{{this.id}}" class="link-read-more">Read more</a>
@@ -47,7 +63,7 @@
             {{/each}}
         </div>
     {{else}}
-        <div class="no-arctiles">
+        <div class="no-articles">
             <p>No article yet.</p>
         </div>
     {{/if}}
