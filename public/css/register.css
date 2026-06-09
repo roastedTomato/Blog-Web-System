@@ -178,3 +178,29 @@
     color: #dc3545;
 }
 
+.error-message {
+    background: linear-gradient(135deg, #ff6b6b 0%, #ee5a6f 100%);
+    color: white;
+    padding: 15px 20px;
+    border-radius: 10px;
+    margin-bottom: 25px;
+    font-size: 15px;
+    font-weight: 600;
+    text-align: center;
+    box-shadow: 0 4px 15px rgba(255, 107, 107, 0.3);
+    animation: slideDown 0.3s ease;
+}
+
+.success-message {
+    background: linear-gradient(135deg, #51cf66 0%, #40c057 100%);
+    color: white;
+    padding: 15px 20px;
+    border-radius: 10px;
+    margin-bottom: 25px;
+    font-size: 15px;
+    font-weight: 600;
+    text-align: center;
+    box-shadow: 0 4px 15px rgba(81, 207, 102, 0.3);
+    animation: slideDown 0.3s ease;
+}
+
