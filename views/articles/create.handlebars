@@ -1,0 +1,42 @@
+<link rel="stylesheet" href="https://cdn.quilljs.com/1.3.7/quill.snow.css">
+<link rel="stylesheet" href="/public/css/article.css">
+
+<div class="article-form-container">
+    <div class="form-header">
+        <h1>{{#if isEdit}}Edit Article{{else}}Create New Article{{/if}}</h1>
+        <a href="/article/my" class="btn btn-cancel">Cancel</a>
+    </div>
+
+    <form id="articleForm" class="article-form" enctype="multipart/form-data">
+        <div class="form-group">
+            <label for="title">Title *</label>
+            <input type="text" id="title" name="title" value="{{article.title}}" required placeholder="Enter article title">
+        </div>
+
+        <div class="form-group">
+            <label for="image">Article Image (optional)</label>
+            {{#if isEdit}}
+                {{#if article.image_url}}
+                    <div class="current-image">
+                        <p>Current image:</p>
+                        <img src="{{article.image_url}}" alt="Current image" id="currentImage">
+                        <button type="button" onclick="removeImage()" class="btn-remove-image">Remove Image</button>
+                    </div>
+                {{/if}}
+            {{/if}}
+            <input type="file" id="image" name="image" accept="image/*">
+            <small>Accepted formats: JPG, PNG, GIF. Max size: 5MB</small>
+        </div>
+
+        <div class="form-group">
+            <label>Content *</label>
+            <div id="editor"></div>
+            <input type="hidden" id="content" name="content" value="{{article.content}}">
+        </div>
+
+        <div class="form-actions">
+            <button type="submit" class="btn btn-submit">{{#if isEdit}}Update Article{{else}}Publish Article{{/if}}</button>
+        </div>
+    </form>
+</div>
+
