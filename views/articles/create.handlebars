@@ -10,7 +10,9 @@
     <form id="articleForm" class="article-form" enctype="multipart/form-data">
         <div class="form-group">
             <label for="title">Title *</label>
-            <input type="text" id="title" name="title" value="{{article.title}}" required placeholder="Enter article title">
+            <input type="text" id="title" name="title" value="{{article.title}}"
+                   required
+                   placeholder="Enter article title">
         </div>
 
         <div class="form-group">
@@ -24,6 +26,7 @@
                     </div>
                 {{/if}}
             {{/if}}
+
             <input type="file" id="image" name="image" accept="image/*">
             <small>Accepted formats: JPG, PNG, GIF. Max size: 5MB</small>
         </div>
@@ -40,3 +43,62 @@
     </form>
 </div>
 
+<script>
+    //1.WYSIWYG editor
+    import quill from "express/lib/view";
+
+    const form = document.getElementById('articleForm');
+    const contentInput = document.getElementById('content');
+    const isEditMode = {{#if isEdit}}true{{else}}false{{/if}};
+    const articleId = '{{article.id}}';
+
+    form.addEventListener('submit', async function(e) {
+        e.preventDefault();
+
+        contentInput.value = quill.root.innerHTML;
+
+        const formData = new FormData(form);
+
+        try {
+            let url = isEditMode ? `/article/${articleId}` : '/article';
+            let method = isEditMode ? 'PUT' : 'POST';
+
+            const response = await fetch(url, {
+                method: method,
+                body: formData
+            });
+
+            if (response.ok) {
+                window.location.href = '/article/my';
+            } else {
+                const error = await response.text();
+                alert('Error: ' + error);
+            }
+        } catch (error) {
+            console.error('Submit error:', error);
+            alert('Failed to save article');
+        }
+    });
+
+
+    //2.function: removeImage:
+    {{#if isEdit}}
+    // Function to remove the current article image in edit mode
+    function removeImage() {
+        if (confirm('Remove this image?')) {
+            // Hide the current image preview immediately for visual feedback
+            document.getElementById('currentImage').display = 'none';
+
+            // Create a hidden input field to mark image removal
+            const hiddenInput = document.createElement('input');
+            hiddenInput.type = 'hidden';
+            hiddenInput.name = 'removeImage';
+            hiddenInput.value = 'true';
+
+            // Append the hidden field to the form so it will be submitted with formData
+            document.getElementById('articleForm').appendChild(hiddenInput);
+        }
+    }
+    {{/if}}
+
+</script>
