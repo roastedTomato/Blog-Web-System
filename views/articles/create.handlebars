@@ -43,9 +43,26 @@
     </form>
 </div>
 
+<script src="https://cdn.quilljs.com/1.3.7/quill.min.js"></script>
 <script>
     //1.WYSIWYG editor
-    import quill from "express/lib/view";
+    const quill = new Quill('#editor', {
+        theme: 'snow',
+        modules: {
+            toolbar: [
+                [{ 'header': [1, 2, 3, false] }],
+                ['bold', 'italic', 'underline'],
+                [{ 'list': 'ordered'}, { 'list': 'bullet' }],
+                ['clean']
+            ]
+        },
+        placeholder: 'Write your article content here...'
+    });
+
+    const initialContent = '{{{json article.content}}}' || '';
+    if (initialContent && initialContent !== '') {
+        quill.root.innerHTML = initialContent;
+    }
 
     const form = document.getElementById('articleForm');
     const contentInput = document.getElementById('content');
@@ -79,7 +96,6 @@
             alert('Failed to save article');
         }
     });
-
 
     //2.function: removeImage:
     {{#if isEdit}}
