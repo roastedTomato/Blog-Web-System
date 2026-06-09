@@ -22,6 +22,9 @@ app.engine("handlebars", handlebars.create({
         },
         eq: function(a, b) {
             return a === b;
+        },
+        json: function(context) {
+            return JSON.stringify(context);
         }
     }
 }).engine);
@@ -54,6 +57,8 @@ app.use(function (req, res, next) {
 // Make the "public" folder available statically
 const path = require("path");
 app.use("/public", express.static(path.join(__dirname, "public")));
+app.use("/uploads", express.static(path.join(__dirname, "public", "uploads")));
+
 
 //setup our routes
 const index = require("./routes/index-routes.js");

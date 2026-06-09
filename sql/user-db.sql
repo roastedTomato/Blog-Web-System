@@ -93,13 +93,13 @@ INSERT INTO users (username, password_hash, full_name, birthday, bio, avatar_url
 
 -- Insert sample articles data
 INSERT INTO articles (title, content, image_url, author_id, created_at) VALUES
-    ('B-Getting Started with Node.js', 'Node.js is a powerful runtime that lets you build scalable network applications using JavaScript. In this article, we will explore the basics of Node.js and how to set up your first project...', '/public/articleImages/nodejs-intro.png', 1,'2023-05-05'),
-    ('C-Top 10 Travel Destinations in 2026', 'Traveling is one of the best ways to broaden your horizons. Here are my top 10 recommended destinations for 2026, from the beaches of Bali to the mountains of Switzerland...', '/public/articleImages/travel-2026.png', 2,'2024-08-05'),
-    ('D-Understanding Database Design', 'Database design is crucial for building efficient applications. This guide covers normalization, relationships, and best practices for creating robust database schemas...', '/public/articleImages/database-design.png', 3,'2022-06-05'),
-    ('G-The Future of Artificial Intelligence', 'AI is transforming industries at an unprecedented pace. From healthcare to finance, machine learning algorithms are solving complex problems and creating new opportunities...', '/public/articleImages/ai-future.png', 4,'2022-05-01'),
-    ('A-Web Development Best Practices', 'Modern web development requires following best practices for security, performance, and maintainability. Learn about code organization, testing, and deployment strategies...', '/public/articleImages/web-dev-practices.png', 5,'2021-02-05'),
+    ('B-Getting Started with Node.js', 'Node.js is a powerful runtime that lets you build scalable network applications using JavaScript. In this article, we will explore the basics of Node.js and how to set up your first project...', '/uploads/1.png', 1,'2023-05-05'),
+    ('C-Top 10 Travel Destinations in 2026', 'Traveling is one of the best ways to broaden your horizons. Here are my top 10 recommended destinations for 2026, from the beaches of Bali to the mountains of Switzerland...', '/uploads/2.png', 2,'2024-08-05'),
+    ('D-Understanding Database Design', 'Database design is crucial for building efficient applications. This guide covers normalization, relationships, and best practices for creating robust database schemas...', '/uploads/3.png', 3,'2022-06-05'),
+    ('G-The Future of Artificial Intelligence', 'AI is transforming industries at an unprecedented pace. From healthcare to finance, machine learning algorithms are solving complex problems and creating new opportunities...', '/uploads/4.png', 4,'2022-05-01'),
+    ('A-Web Development Best Practices', 'Modern web development requires following best practices for security, performance, and maintainability. Learn about code organization, testing, and deployment strategies...', '/uploads/5.png', 5,'2021-02-05'),
     ('N-My Journey Learning Programming', 'Six months ago, I started my programming journey. It has been challenging but rewarding. Here are some tips for beginners who want to learn coding...', NULL, 1,'2023-02-05'),
-    ('F-Photography Tips for Beginners', 'Photography is both an art and a science. In this article, I share essential tips for capturing stunning photos, from understanding lighting to composition techniques...', '/public/articleImages/photography-tips.png', 2,'2021-09-05');
+    ('F-Photography Tips for Beginners', 'Photography is both an art and a science. In this article, I share essential tips for capturing stunning photos, from understanding lighting to composition techniques...', '/uploads/6.png', 2,'2021-09-05');
 
 -- Insert sample comment data
 INSERT INTO comments (content, user_id, article_id, parent_id) VALUES
