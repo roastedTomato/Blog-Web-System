@@ -3,6 +3,18 @@
 <div class="register-container">
     <h2>User Registration</h2>
 
+    {{#if error}}
+        <div class="error-message">
+            {{error}}
+        </div>
+    {{/if}}
+
+    {{#if success}}
+        <div class="success-message">
+            {{success}}
+        </div>
+    {{/if}}
+
     <form action="/user/register" method="post" class="register-form">
         <div class="form-group">
             <label for="username">Username *</label>
@@ -13,7 +25,7 @@
                    minlength="3"
                    maxlength="50"
                    placeholder="Enter username"
-                   value="{{formatDate.username}}"
+                   value="{{formDate.username}}"
             >
             <span id="username-status" class="username-status"></span>
             <small>3-50 characters, must be unique</small>

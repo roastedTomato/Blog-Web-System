@@ -75,7 +75,7 @@ router.post('/register', async (req, res) => {
     // 1. Validation: Check required fields
     if (!username || !password || !confirmPassword) {
         const avatars = await userDAO.getActiveAvatars();
-        return res.status(400).render('users/create', {
+        return res.status(400).render('users/register', {
             title: 'User Registration',
             avatars: avatars,
             formData: { username, fullName, birthday, bio },
@@ -83,10 +83,21 @@ router.post('/register', async (req, res) => {
         });
     }
 
-    // 2. Validation: Check passwords match
+    // 2. Validation: Check password length
+    if (password.length < 6) {
+        const avatars = await userDAO.getActiveAvatars();
+        return res.status(400).render('users/register', {
+            title: 'User Registration',
+            avatars: avatars,
+            formData: { username, fullName, birthday, bio },
+            error: 'Password must be at least 6 characters long'
+        });
+    }
+
+    // 3. Validation: Check passwords match
     if (password !== confirmPassword) {
         const avatars = await userDAO.getActiveAvatars();
-        return res.status(400).render('users/create', {
+        return res.status(400).render('users/register', {
             title: 'User Registration',
             avatars: avatars,
             formData: { username, fullName, birthday, bio },
@@ -95,7 +106,7 @@ router.post('/register', async (req, res) => {
     }
 
     try {
-        // 3. Check if username already exists
+        // 4. Check if username already exists
         const isTaken = await userDAO.isUsernameTaken(username);
 
         if (isTaken) {
@@ -108,7 +119,7 @@ router.post('/register', async (req, res) => {
             });
         }
 
-        // 4. Create new user
+        // 5. Create new user
         const userId = await userDAO.create({
             username,
             password,
@@ -118,11 +129,11 @@ router.post('/register', async (req, res) => {
             avatarId
         });
 
-        // 5. Create session (auto login)
+        // 6. Create session (auto login)
         const user = await userDAO.findById(userId);
         req.session.user = userDAO.buildSessionObject(user);
 
-        //6. Redirect to home page
+        // 7. Redirect to home page
         res.redirect('/');
 
     } catch (err) {
