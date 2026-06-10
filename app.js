@@ -50,7 +50,7 @@ const session = require("express-session");
 app.use(session({
     resave: false,
     saveUninitialized: false,
-    secret: "COMPX569"
+    secret: process.env.SESSION_SECRET || "COMPX569"
 }));
 
 // Make the "user" session object available to all views
