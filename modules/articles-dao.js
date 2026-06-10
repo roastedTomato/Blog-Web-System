@@ -58,8 +58,7 @@ async function getArticlesByUserId(userId, sortBy = 'date', order='DESC') {
 }
 
 async function getArticleById(articleId) {
-    const articles = await db.query(`
-        SELECT 
+    const articles = await db.query(`        SELECT 
             a.id,
             a.title,
             a.content,
@@ -69,10 +68,13 @@ async function getArticleById(articleId) {
             a.updated_at,
             u.username as author_username,
             u.full_name as author_full_name,
-            u.avatar_url as author_avatar
+            u.avatar_url as author_avatar,
+            COUNT(l.user_id) as likes_count
         FROM articles a
         JOIN users u ON a.author_id = u.id
+        LEFT JOIN likes l ON a.id = l.article_id
         WHERE a.id = ?
+        GROUP BY a.id
     `, [articleId]);
 
     return articles.length > 0 ? articles[0] : null;

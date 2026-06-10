@@ -1,6 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const articleDAO = require('../modules/articles-dao');
+const likesDAO = require('../modules/likes.dao')
 const multer = require('multer')
 const fs = require('fs');
 
@@ -217,5 +218,37 @@ router.get('/:id', async (req, res) => {
         article: article
     });
 });
+
+router.post('/:id/like', async(req,res)=>{
+    if(!req.session.user){
+        return res.status(401).json({ error: 'Login required' });
+    }
+
+    try{
+        const articleId = req.params.id;
+        const userId = req.session.user.id;
+
+        const existingLike = await likesDAO.existingLike(userId,articleId);
+
+        if(existingLike.length > 0){
+            await likesDAO.unlike(articleId, userId)
+        } else{
+            await likesDAO.addLike(articleId,userId)
+        }
+
+        const likeCountResult = await likesDAO.likeCount(articleId);
+
+        const likesCount = likeCountResult.length > 0 ? likeCountResult[0].count : 0;
+
+        res.json({
+            success:true,
+            likeCount:likesCount,
+            liked:existingLike.length===0
+        })
+    } catch (err) {
+        console.error('Like error:', err);
+        res.status(500).json({ error: 'Failed to process like' });
+    }
+})
 
 module.exports = router;
