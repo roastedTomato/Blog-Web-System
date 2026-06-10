@@ -269,6 +269,22 @@ router.post('/change-password', requireLogin, async (req, res) => {
     }
 });
 
+// POST /user/delete - Delete logged-in user account
+router.post('/delete', requireLogin, async (req, res) => {
+    const userId = req.session.user.id;
+
+    try {
+        await userDAO.deleteUser(userId);
+        req.session.destroy(() => {
+            res.clearCookie('connect.sid');
+            res.redirect('/');
+        });
+    } catch (err) {
+        console.error('Delete account error:', err);
+        return res.redirect('/user/profile?error=Failed+to+delete+account');
+    }
+});
+
 // GET /Fetch check username is taken
 router.get('/check-username',async(req,res)=>{
     const {username} = req.query;
