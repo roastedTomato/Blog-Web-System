@@ -212,10 +212,16 @@ router.get('/:id', async (req, res) => {
     if (!article) {
         return res.status(404).send('Article not found');
     }
+    let userLiked = false;
+    if (req.session.user) {
+        const existingLike = await likesDAO.existingLike(req.session.user.id, article.id);
+        userLiked = existingLike.length > 0;
+    }
 
     res.render('articles/article', {
         title: article.title,
-        article: article
+        article: article,
+        userLiked: userLiked
     });
 });
 
@@ -231,9 +237,9 @@ router.post('/:id/like', async(req,res)=>{
         const existingLike = await likesDAO.existingLike(userId,articleId);
 
         if(existingLike.length > 0){
-            await likesDAO.unlike(articleId, userId)
+            await likesDAO.unlike(userId, articleId)
         } else{
-            await likesDAO.addLike(articleId,userId)
+            await likesDAO.addLike(userId,articleId)
         }
 
         const likeCountResult = await likesDAO.likeCount(articleId);

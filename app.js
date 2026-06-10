@@ -36,6 +36,11 @@ app.use(express.json());
 
 // TODO: Your app here
 
+// Fix BigInt serialization issue
+BigInt.prototype.toJSON = function() {
+    return Number(this);
+};
+
 //setup cookie-parser
 const cookieParser = require("cookie-parser")
 app.use(cookieParser());

@@ -31,7 +31,7 @@
                 <span class="likes-count">❤️ {{#if article.likes_count}}{{article.likes_count}}{{else}}0{{/if}} likes</span>
                 {{#if user}}
                     <button id="likeBtn" class="btn-like" onclick="toggleLike({{article.id}})">
-                        ❤️ Like
+                        {{#if userLiked}}💔 Unlike{{else}}❤️ Like{{/if}}
                     </button>
                 {{else}}
                     <a href="/user/login" class="btn-login-to-like">Login to like</a>
@@ -84,13 +84,15 @@
             if (res.ok) {
                 const data = await res.json();
                 const likesCountEl = document.querySelector('.likes-count');
-                likesCountEl.textContent = `❤️ ${data.likesCount} likes`;
+                likesCountEl.textContent = `❤️ ${data.likeCount} likes`;
 
                 const likeBtn = document.getElementById('likeBtn');
                 if (data.liked) {
                     likeBtn.classList.add('liked');
+                    likeBtn.textContent = '💔 Unlike';
                 } else {
                     likeBtn.classList.remove('liked');
+                    likeBtn.textContent = '❤️ Like';
                 }
             }
         } catch (e) {

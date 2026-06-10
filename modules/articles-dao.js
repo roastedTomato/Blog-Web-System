@@ -19,9 +19,12 @@ async function getAllArticles(sortBy = 'date', order='DESC') {
             a.created_at,
             u.username as author_username,
             u.full_name as author_full_name,
-            u.avatar_url as author_avatar
+            u.avatar_url as author_avatar,
+            COUNT(l.user_id) as likes_count
         FROM articles a
         JOIN users u ON a.author_id = u.id
+        LEFT JOIN likes l ON a.id = l.article_id
+        GROUP BY a.id
         ORDER BY ${sortField} ${sortOrder}`;
 
     const articles = await db.query(query);
@@ -47,10 +50,13 @@ async function getArticlesByUserId(userId, sortBy = 'date', order='DESC') {
             a.created_at,
             u.username as author_username,
             u.full_name as author_full_name,
-            u.avatar_url as author_avatar
+            u.avatar_url as author_avatar,
+            COUNT(l.user_id) as likes_count
         FROM articles a
         JOIN users u ON a.author_id = u.id
+        LEFT JOIN likes l ON a.id = l.article_id
         WHERE a.author_id = ?
+        GROUP BY a.id
         ORDER BY ${sortField} ${sortOrder}`;
 
     const articles = await db.query(query, [userId]);
