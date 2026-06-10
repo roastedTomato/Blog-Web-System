@@ -4,6 +4,7 @@ const articleDAO = require('../modules/articles-dao');
 const likesDAO = require('../modules/likes.dao')
 const multer = require('multer')
 const fs = require('fs');
+const path = require('path');
 
 const uploadDir = './public/uploads/';
 
@@ -21,7 +22,9 @@ const storage = multer.diskStorage({
     },
     // Set the filename generation rule
     filename: function(req, file, cb) {
-        const uniqueName = Date.now() + '-' + file.originalname;
+        const ext = path.extname(file.originalname).toLowerCase();
+        const safeBaseName = path.basename(file.originalname, ext).replace(/[^a-z0-9_-]/gi, '-');
+        const uniqueName = Date.now() + '-' + safeBaseName + ext;
         cb(null, uniqueName);
     }
 });
@@ -136,7 +139,7 @@ router.post('/',upload.single('image'), async (req,res)=>{
     console.log('Creating article:',{title,imageUrl})
 
     try{
-        const articleId = articleDAO.createArticle(
+        const articleId = await articleDAO.createArticle(
             title,
             content,
             imageUrl,
@@ -149,7 +152,7 @@ router.post('/',upload.single('image'), async (req,res)=>{
 })
 
 //update new article in database
-router.put('/:id',upload.single('image',async(req,res)=>{
+router.put('/:id', upload.single('image'), async(req,res)=>{
     if(!req.session.user){
         return res.status(401).send('Unauthorized');
     }
@@ -165,7 +168,7 @@ router.put('/:id',upload.single('image',async(req,res)=>{
     }
 
     const {title,content,removeImage} = req.body;
-    let imageUrl = article.imageUrl;
+    let imageUrl = article.image_url;
 
     if(removeImage==='true'){
         imageUrl = null;
@@ -179,7 +182,7 @@ router.put('/:id',upload.single('image',async(req,res)=>{
     }catch (err){
         res.status(500).send("Failed to update article ")
     }
-}))
+})
 
 //delete article in database
 router.delete('/:id',async(req,res)=>{
