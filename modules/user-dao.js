@@ -14,17 +14,17 @@ async function findById(userId) {
         'SELECT id, username, full_name, birthday, bio, avatar_url, password_hash, created_at FROM users WHERE id = ?',
         [userId]
     );
-     if(users.length === 0){
-         return null;
-     }
-     const user = users[0];
+    if(users.length === 0){
+        return null;
+    }
+    const user = users[0];
 
-     if(user.birthday){
-         const date = new Date(user.birthday);
-         if (!isNaN(date.getTime())) {
-             user.birthday = date.toISOString().split('T')[0];
-         }
-     }
+    if(user.birthday){
+        const date = new Date(user.birthday);
+        if (!isNaN(date.getTime())) {
+            user.birthday = date.toISOString().split('T')[0];
+        }
+    }
 
     return user;
 }
@@ -133,6 +133,11 @@ async function changePassword(userId, currentPassword,newPassword, confirmPasswo
     return true;
 }
 
+async function deleteUser(userId) {
+    await db.query('DELETE FROM users WHERE id = ?', [userId]);
+    return true;
+}
+
 //4.others
 function markSelectedAvatar(avatars, userAvatarUrl) {
     return avatars.map(avatar => ({
@@ -157,6 +162,7 @@ module.exports = {
     isUsernameTaken,
     create,
     updateProfile,
+    deleteUser,
     changePassword,
     markSelectedAvatar,
     verifyPassword,
