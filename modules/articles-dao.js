@@ -1,5 +1,9 @@
 const db = require('./database');
 
+/**
+ * Gets all articles with author details and like counts.
+ * sortBy and order are checked against a whitelist before being added to SQL.
+ */
 async function getAllArticles(sortBy = 'date', order='DESC') {
     const validSortFields ={
         'title':'a.title',
@@ -31,6 +35,10 @@ async function getAllArticles(sortBy = 'date', order='DESC') {
     return articles;
 }
 
+/**
+ * Gets articles written by one user with author details and like counts.
+ * Used by the "My Articles" page.
+ */
 async function getArticlesByUserId(userId, sortBy = 'date', order='DESC') {
     const validSortFields ={
         'title':'a.title',
@@ -63,6 +71,10 @@ async function getArticlesByUserId(userId, sortBy = 'date', order='DESC') {
     return articles;
 }
 
+/**
+ * Gets one article by id, including author information and total likes.
+ * Returns null when the article does not exist.
+ */
 async function getArticleById(articleId) {
     const articles = await db.query(`        SELECT 
             a.id,
@@ -86,6 +98,10 @@ async function getArticleById(articleId) {
     return articles.length > 0 ? articles[0] : null;
 }
 
+/**
+ * Creates a new article record and returns the new article id.
+ * imageUrl can be null when the author does not upload an image.
+ */
 async function createArticle(title, content, imageUrl, authorId) {
     const result = await db.query(
         'INSERT INTO articles (title, content, image_url, author_id, created_at) VALUES (?, ?, ?, ?, NOW())',
@@ -95,6 +111,10 @@ async function createArticle(title, content, imageUrl, authorId) {
     return result.insertId;
 }
 
+/**
+ * Updates the editable fields for an existing article.
+ * The route checks ownership before calling this method.
+ */
 async function updateArticle(articleId, title, content, imageUrl) {
     await db.query(
         'UPDATE articles SET title = ?, content = ?, image_url = ?, updated_at = NOW() WHERE id = ?',
@@ -104,6 +124,10 @@ async function updateArticle(articleId, title, content, imageUrl) {
     return true;
 }
 
+/**
+ * Deletes an article by id.
+ * Related comments and likes are removed by database cascade rules.
+ */
 async function deleteArticle(articleId) {
     await db.query('DELETE FROM articles WHERE id = ?', [articleId]);
     return true;

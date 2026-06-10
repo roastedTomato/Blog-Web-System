@@ -1,8 +1,11 @@
 const express = require('express');
 const router = express.Router();
 const userDAO = require('../modules/user-dao');
-const {json} = require("express");
 
+/**
+ * Middleware that protects routes requiring a logged-in user.
+ * Users who are not logged in are sent to the login page.
+ */
 function requireLogin(req, res, next) {
     if (!req.session.user) {
         return res.redirect('/user/login');
@@ -10,6 +13,18 @@ function requireLogin(req, res, next) {
     next();
 }
 
+/**
+ * Sends username-check API errors in a predictable JSON structure.
+ * The register page reads available/message from this response.
+ */
+function sendJsonError(res, status, message) {
+    return res.status(status).json({ success: false, available: false, message, error: message });
+}
+
+/**
+ * Loads the current user's profile page with avatar selection data.
+ * Optional success or error messages are displayed after profile actions.
+ */
 async function renderProfilePage(req, res, options = {}) {
     const { error = null, success = null } = options;
     const userId = req.session.user.id;
@@ -42,7 +57,9 @@ async function renderProfilePage(req, res, options = {}) {
 }
 
 
-// GET /user/register - Show registration form
+/**
+ * Shows the registration form and loads preset avatars.
+ */
 router.get('/register', async (req, res) => {
     try {
         const avatars = await userDAO.getActiveAvatars();
@@ -68,7 +85,10 @@ router.get('/register', async (req, res) => {
     }
 });
 
-// POST /user/register - Process registration
+/**
+ * Validates registration input, creates the user, and logs them in.
+ * Password hashing is handled inside userDAO.create().
+ */
 router.post('/register', async (req, res) => {
     const { username, password, confirmPassword, fullName, birthday, bio, avatarId } = req.body;
 
@@ -142,7 +162,10 @@ router.post('/register', async (req, res) => {
     }
 });
 
-// GET /user/login - Show login form
+/**
+ * Shows the login form.
+ * Already logged-in users are redirected to the home page.
+ */
 router.get('/login',async(req,res)=>{
     if(req.session.user){
         return res.redirect('/');
@@ -154,7 +177,9 @@ router.get('/login',async(req,res)=>{
     });
 });
 
-// POST /user/login - Verify login
+/**
+ * Verifies login credentials and stores a safe user object in the session.
+ */
 router.post('/login',async(req,res)=>{
     const {username,password} = req.body;
 
@@ -199,7 +224,9 @@ router.post('/login',async(req,res)=>{
     }
 })
 
-// GET /user/logout - Destroy Session
+/**
+ * Logs the user out by destroying the session and clearing the session cookie.
+ */
 router.get('/logout',async (req,res)=>{
     req.session.destroy(()=>{
         //clear also the cookie in the web
@@ -208,13 +235,17 @@ router.get('/logout',async (req,res)=>{
     })
 })
 
-// GET /user/profile - Show user profile
+/**
+ * Shows the logged-in user's profile form.
+ */
 router.get('/profile',requireLogin, async(req,res)=>{
     const{error= null, success = null} = req.query;
     await renderProfilePage(req, res,{error,success})
 });
 
-// POST /user/profile - Change user profile
+/**
+ * Updates profile fields and refreshes the session user data.
+ */
 router.post('/profile',requireLogin, async(req,res)=>{
     const {username, fullName, birthday, bio, avatarId} = req.body;
     const userId = req.session.user.id;
@@ -256,7 +287,9 @@ router.post('/profile',requireLogin, async(req,res)=>{
     }
 })
 
-// POST /user/change-password - Change password (separate route)
+/**
+ * Changes the logged-in user's password after validating the current password.
+ */
 router.post('/change-password', requireLogin, async (req, res) => {
     const {currentPassword, newPassword, confirmPassword } = req.body;
     const userId = req.session.user.id;
@@ -269,7 +302,10 @@ router.post('/change-password', requireLogin, async (req, res) => {
     }
 });
 
-// POST /user/delete - Delete logged-in user account
+/**
+ * Deletes the logged-in user's account and then logs them out.
+ * Database cascade rules remove their related articles, comments, and likes.
+ */
 router.post('/delete', requireLogin, async (req, res) => {
     const userId = req.session.user.id;
 
@@ -285,22 +321,32 @@ router.post('/delete', requireLogin, async (req, res) => {
     }
 });
 
-// GET /Fetch check username is taken
+/**
+ * Checks username availability for the registration page AJAX validation.
+ */
 router.get('/check-username',async(req,res)=>{
     const {username} = req.query;
 
     if(!username || username.trim() === ''){
-        return res.json({available:false,message:"Username cannot be null"})
+        return sendJsonError(res, 400, 'Username cannot be empty');
     }
 
-    const isTaken = await userDAO.isUsernameTaken(username);
-    if(isTaken){
-        return res.json({available:false,message:"Username is already taken"})
-    } else{
-        return res.json({available:true,message:"Username is available"})
+    try {
+        const isTaken = await userDAO.isUsernameTaken(username);
+        if(isTaken){
+            return res.json({success: true, available:false,message:"Username is already taken"})
+        } else{
+            return res.json({success: true, available:true,message:"Username is available"})
+        }
+    } catch (err) {
+        console.error('Check username error:', err);
+        return sendJsonError(res, 500, 'Failed to check username');
     }
 })
 
+/**
+ * Fallback user route that renders the home page.
+ */
 router.get('/', (req, res) => {
     res.render('index');
 });

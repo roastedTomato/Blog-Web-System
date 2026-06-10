@@ -60,6 +60,9 @@
     const articlesList = document.getElementById('articlesList');
     const noArticles = document.getElementById('noArticles');
 
+    /**
+     * Formats article creation dates for display in the article list.
+     */
     function formatDate(dateStr) {
         const date = new Date(dateStr);
         const day = date.getDate();
@@ -69,6 +72,25 @@
         return `${day} ${month} ${year}`;
     }
 
+    /**
+     * Sends an AJAX request and returns parsed JSON.
+     * Used by sorting so the page can update without reloading.
+     */
+    async function requestJson(url, options = {}) {
+        const response = await fetch(url, options);
+        const data = await response.json();
+
+        if (!response.ok) {
+            throw new Error(data.error || 'Request failed');
+        }
+
+        return data;
+    }
+
+    /**
+     * Loads articles using the selected sort field and order.
+     * Rebuilds the article list with the returned JSON data.
+     */
     async function loadArticles() {
         //Get the user's selected value from the dropdown list on the front-end page.
         const sort = sortBy.value;
@@ -77,8 +99,7 @@
         try {
             /*send the infos to back-end by http request
             json=1 is for deciding data return format in the router*/
-            const res = await fetch(`/article?sort=${sort}&order=${order}&json=1`);
-            const data = await res.json();
+            const data = await requestJson(`/article?sort=${sort}&order=${order}&json=1`);
 
             if (!data.articles || data.articles.length === 0) {
                 articlesList.style.display = 'none';
@@ -114,6 +135,7 @@
             noArticles.style.display = 'none';
         } catch (e) {
             console.error('Load error:', e);
+            alert(e.message || 'Failed to load articles');
         }
     }
 

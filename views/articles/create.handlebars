@@ -69,9 +69,26 @@
     const isEditMode = {{#if isEdit}}true{{else}}false{{/if}};
     const articleId = '{{article.id}}';
 
+    /**
+     * Reads an error message from either a JSON or plain-text response.
+     */
+    async function getErrorMessage(response) {
+        const contentType = response.headers.get('content-type') || '';
+        if (contentType.includes('application/json')) {
+            const data = await response.json();
+            return data.error || 'Failed to save article';
+        }
+        return await response.text();
+    }
+
+    /**
+     * Handles create and edit form submission through fetch.
+     * Uses POST for new articles and PUT for existing articles.
+     */
     form.addEventListener('submit', async function(e) {
         e.preventDefault();
 
+        // Keep the hidden form field in sync with the WYSIWYG editor before upload.
         contentInput.value = quill.root.innerHTML;
 
         const formData = new FormData(form);
@@ -85,36 +102,37 @@
                 body: formData
             });
 
-            if (response.ok) {
-                window.location.href = '/article/my';
-            } else {
-                const error = await response.text();
-                alert('Error: ' + error);
+            if (!response.ok) {
+                throw new Error(await getErrorMessage(response));
             }
+
+            window.location.href = '/article/my';
         } catch (error) {
             console.error('Submit error:', error);
-            alert('Failed to save article');
+            alert(error.message || 'Failed to save article');
         }
     });
 
-    //2.function: removeImage:
-    {{#if isEdit}}
-    // Function to remove the current article image in edit mode
-    function removeImage() {
-        if (confirm('Remove this image?')) {
-            // Hide the current image preview immediately for visual feedback
-            document.getElementById('currentImage').display = 'none';
+        {{#if isEdit}}
+        /**
+         * Marks the current article image for removal in edit mode.
+         * The hidden input tells the server to set image_url to null.
+         */
+        function removeImage() {
+            if (confirm('Remove this image?')) {
+                // Hide the current image preview immediately for visual feedback
+                document.getElementById('currentImage').style.display = 'none';
 
-            // Create a hidden input field to mark image removal
-            const hiddenInput = document.createElement('input');
-            hiddenInput.type = 'hidden';
-            hiddenInput.name = 'removeImage';
-            hiddenInput.value = 'true';
+                // Create a hidden input field to mark image removal
+                const hiddenInput = document.createElement('input');
+                hiddenInput.type = 'hidden';
+                hiddenInput.name = 'removeImage';
+                hiddenInput.value = 'true';
 
-            // Append the hidden field to the form so it will be submitted with formData
-            document.getElementById('articleForm').appendChild(hiddenInput);
+                // Append the hidden field to the form so it will be submitted with formData
+                document.getElementById('articleForm').appendChild(hiddenInput);
+            }
         }
-    }
-    {{/if}}
+        {{/if}}
 
 </script>

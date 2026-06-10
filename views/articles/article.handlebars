@@ -72,31 +72,48 @@
 </div>
 
 <script>
+    /**
+     * Sends a fetch request and parses the JSON response.
+     * Throws an Error when the server returns a failed status code.
+     */
+    async function requestJson(url, options = {}) {
+        const response = await fetch(url, options);
+        const data = await response.json();
+
+        if (!response.ok) {
+            throw new Error(data.error || 'Request failed');
+        }
+
+        return data;
+    }
+
+    /**
+     * Likes or unlikes the article for the current user.
+     * Updates the like button and count without reloading the page.
+     */
     async function toggleLike(articleId) {
         try {
-            const res = await fetch(`/article/${articleId}/like`, {
+            const data = await requestJson(`/article/${articleId}/like`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'
                 }
             });
 
-            if (res.ok) {
-                const data = await res.json();
-                const likesCountEl = document.querySelector('.likes-count');
-                likesCountEl.textContent = `❤️ ${data.likeCount} likes`;
+            const likesCountEl = document.querySelector('.likes-count');
+            likesCountEl.textContent = `❤️ ${data.likeCount} likes`;
 
-                const likeBtn = document.getElementById('likeBtn');
-                if (data.liked) {
-                    likeBtn.classList.add('liked');
-                    likeBtn.textContent = '💔 Unlike';
-                } else {
-                    likeBtn.classList.remove('liked');
-                    likeBtn.textContent = '❤️ Like';
-                }
+            const likeBtn = document.getElementById('likeBtn');
+            if (data.liked) {
+                likeBtn.classList.add('liked');
+                likeBtn.textContent = '💔 Unlike';
+            } else {
+                likeBtn.classList.remove('liked');
+                likeBtn.textContent = '❤️ Like';
             }
         } catch (e) {
             console.error('Like error:', e);
+            alert(e.message || 'Failed to process like');
         }
     }
 </script>
@@ -104,12 +121,19 @@
 <script>
     const articleId = {{article.id}};
 
+    /**
+     * Loads the latest comments for the current article.
+     * Re-renders the comments list after posting or deleting a comment.
+     */
     async function loadComments(){
-        const res = await fetch(`/comment/article/${articleId}`);
-        const data = await res.json();
-
-        const commentsList = document.getElementById('commentsList');
-        commentsList.innerHTML = renderComments(data.comments, null, 0);
+        try {
+            const data = await requestJson(`/comment/article/${articleId}`);
+            const commentsList = document.getElementById('commentsList');
+            commentsList.innerHTML = renderComments(data.comments, null, 0);
+        } catch (e) {
+            console.error('Load comments error:', e);
+            alert(e.message || 'Failed to load comments');
+        }
     }
 
     /**
@@ -184,7 +208,9 @@
         return html;
     }
 
-    // Show/hide reply form
+    /**
+     * Shows or hides the reply form below a comment.
+     */
     function showReplyForm(commentId) {
         const form = document.getElementById('replyForm-' + commentId);
         if (form) {
@@ -192,7 +218,10 @@
         }
     }
 
-    // Submit reply to a comment
+    /**
+     * Submits a reply to an existing comment.
+     * The server validates the maximum nesting depth.
+     */
     async function submitReply(parentId) {
         const content = document.getElementById('replyContent-' + parentId).value.trim();
 
@@ -202,7 +231,7 @@
         }
 
         try {
-            const res = await fetch('/comment', {
+            await requestJson('/comment', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
@@ -212,68 +241,73 @@
                 })
             });
 
-            if (res.ok) {
-                document.getElementById('replyContent-' + parentId).value = '';
-                document.getElementById('replyForm-' + parentId).style.display = 'none';
-                await loadComments();
-            } else {
-                const error = await res.json();
-                alert(error.error || 'Failed to post reply');
-            }
+            document.getElementById('replyContent-' + parentId).value = '';
+            document.getElementById('replyForm-' + parentId).style.display = 'none';
+            await loadComments();
         } catch (e) {
             console.error('Submit reply error:', e);
-            alert('Error posting reply');
+            alert(e.message || 'Error posting reply');
         }
     }
 
-    // Submit new comment
+    /**
+     * Submits a new top-level comment for the article.
+     */
     async function submitComment(){
         const content = document.getElementById('commentContent').value.trim();
         if(!content){
             alert('Comment cannot be empty');
             return;
         }
-        const res = await fetch('/comment',{
-            method:'POST',
-            headers:{'Content-Type':'application/json'},
-            body:JSON.stringify({
-                content:content,
-                articleId:articleId
-            })
-        });
-
-        if(res.ok){
+        try {
+            await requestJson('/comment',{
+                method:'POST',
+                headers:{'Content-Type':'application/json'},
+                body:JSON.stringify({
+                    content:content,
+                    articleId:articleId
+                })
+            });
             document.getElementById('commentContent').value = '';
             await loadComments();
-        } else{
-            const error = await res.json();
-            alert(error.error || 'Failed to post comment');
+        } catch (e) {
+            console.error('Submit comment error:', e);
+            alert(e.message || 'Failed to post comment');
         }
     }
 
-    // Delete comment with permission verification
+    /**
+     * Deletes a comment after user confirmation.
+     * The server checks whether the user has permission.
+     */
     async function deleteComment(commentId) {
         if (!confirm('Are you sure you want to delete this comment?')) {
             return;
         }
-        const res = await fetch(`/comment/${commentId}`, {
-            method: 'delete'
-        });
-
-        if (res.ok) {
-            loadComments();
-        } else {
-            const error = await res.json();
-            alert(error.error || 'Failed to delete comment');
+        try {
+            await requestJson(`/comment/${commentId}`, {
+                method: 'DELETE'
+            });
+            await loadComments();
+        } catch (e) {
+            console.error('Delete comment error:', e);
+            alert(e.message || 'Failed to delete comment');
         }
     }
 
+    /**
+     * Escapes comment text before inserting it into generated HTML.
+     * This prevents user comments from being interpreted as HTML.
+     */
     function escapeHtml(text) {
         const div = document.createElement('div');
         div.textContent = text;
         return div.innerHTML;
     }
 
+    /**
+     * Formats a database date value for display beside comments.
+     */
     function formatDate(dateStr) {
         const date = new Date(dateStr);
         return date.toLocaleString('en-US', {

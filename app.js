@@ -12,6 +12,9 @@ const port = process.env.EXPRESS_PORT || 3000;
 app.engine("handlebars", handlebars.create({
     defaultLayout:"main",
     helpers: {
+        /**
+         * Formats a database date for display in Handlebars templates.
+         */
         formatDate: function(date) {
             if (!date) return '';
             const d = new Date(date);
@@ -20,9 +23,16 @@ app.engine("handlebars", handlebars.create({
             const day = d.getDate();
             return `${day} ${month} ${year}`;
         },
+        /**
+         * Compares two values inside Handlebars templates.
+         * Used for selected states and ownership checks.
+         */
         eq: function(a, b) {
             return a === b;
         },
+        /**
+         * Converts data into JSON so it can be safely inserted into page scripts.
+         */
         json: function(context) {
             return JSON.stringify(context);
         }
@@ -37,6 +47,9 @@ app.use(express.json());
 // TODO: Your app here
 
 // Fix BigInt serialization issue
+/**
+ * Converts MariaDB BigInt values to numbers before JSON responses are sent.
+ */
 BigInt.prototype.toJSON = function() {
     return Number(this);
 };
@@ -54,6 +67,10 @@ app.use(session({
 }));
 
 // Make the "user" session object available to all views
+/**
+ * Copies the logged-in user from the session into res.locals.
+ * This lets every Handlebars template use {{user}} without passing it manually.
+ */
 app.use(function (req, res, next) {
     res.locals.user = req.session.user;
     next();
@@ -78,7 +95,9 @@ app.use('/article', article);
 const comment = require("./routes/comment-routes.js");
 app.use('/comment', comment);
 
-
+/**
+ * Starts the Express server on the configured port.
+ */
 app.listen(port, function () {
     console.log(`Web final project listening on http://localhost:${port}/`);
 });

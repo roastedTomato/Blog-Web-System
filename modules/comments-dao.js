@@ -1,5 +1,9 @@
 const db = require('./database');
 
+/**
+ * Gets all comments for one article in chronological order.
+ * The frontend uses parent_id to render nested replies.
+ */
 async function getCommentsByArticleId(articleId) {
     const query = `
         SELECT 
@@ -21,6 +25,10 @@ async function getCommentsByArticleId(articleId) {
     return await db.query(query, [articleId]);
 }
 
+/**
+ * Creates a top-level comment or a reply.
+ * parentId is null for top-level comments and contains a comment id for replies.
+ */
 async function createComment(content, userId, articleId, parentId = null) {
     const result = await db.query(
         'INSERT INTO comments (content, user_id, article_id, parent_id, created_at) VALUES (?, ?, ?, ?, NOW())',
@@ -30,6 +38,10 @@ async function createComment(content, userId, articleId, parentId = null) {
     return Number(result.insertId);
 }
 
+/**
+ * Deletes a comment after checking permission.
+ * A comment can be deleted by its author or by the author of the article.
+ */
 async function deleteComment(commentId, userId) {
     // validation: if commenter or author
     const comment = await db.query(`
@@ -55,7 +67,10 @@ async function deleteComment(commentId, userId) {
     return true;
 }
 
-// multiple comments: two levels of nesting
+/**
+ * Calculates how deeply a comment is nested.
+ * This is used to stop replies after the allowed two levels.
+ */
 async function getCommentDepth(commentId) {
     let depth = 0;
     let currentId = commentId;

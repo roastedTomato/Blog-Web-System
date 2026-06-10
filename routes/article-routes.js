@@ -8,6 +8,14 @@ const path = require('path');
 
 const uploadDir = './public/uploads/';
 
+/**
+ * Sends API errors in one consistent JSON format.
+ * Frontend fetch helpers can read data.error for every failed request.
+ */
+function sendJsonError(res, status, message) {
+    return res.status(status).json({ success: false, error: message });
+}
+
 //1.for image: ensure upload directory exists, create it if not
 if(!fs.existsSync(uploadDir)){
     fs.mkdirSync(uploadDir,{recursive:true})
@@ -15,12 +23,16 @@ if(!fs.existsSync(uploadDir)){
 
 //2.for image: configure file storage rules
 const storage = multer.diskStorage({
-    // Set the directory where uploaded files will be stored
+    /**
+     * Selects the folder where uploaded article images are saved.
+     */
     destination: function(req,file,cb){
         // callback(error, path) - pass null as first parameter to indicate no error
         cb(null,uploadDir)
     },
-    // Set the filename generation rule
+    /**
+     * Builds a safe unique filename for each uploaded image.
+     */
     filename: function(req, file, cb) {
         const ext = path.extname(file.originalname).toLowerCase();
         const safeBaseName = path.basename(file.originalname, ext).replace(/[^a-z0-9_-]/gi, '-');
@@ -33,6 +45,9 @@ const storage = multer.diskStorage({
 const upload = multer({
     storage: storage,
     limits: { fileSize: 5 * 1024 * 1024 },
+    /**
+     * Allows image files only and rejects other file types.
+     */
     fileFilter: function(req, file, cb) {
         if (file.mimetype.startsWith('image/')) {
             cb(null, true);
@@ -42,7 +57,9 @@ const upload = multer({
     }
 });
 
-
+/**
+ * Shows all articles, or returns article JSON for AJAX sorting.
+ */
 router.get('/', async (req, res) => {
     const sortBy = req.query.sort || 'date';
     const order = req.query.order || 'DESC';
@@ -66,6 +83,10 @@ router.get('/', async (req, res) => {
     }
 });
 
+/**
+ * Shows articles written by the logged-in user.
+ * The same route also returns JSON for AJAX sorting on the My Articles page.
+ */
 router.get('/my', async (req, res) => {
     //check if login
     if (!req.session.user) {
@@ -98,6 +119,9 @@ router.get('/my', async (req, res) => {
     }
 });
 
+/**
+ * Renders the create article form for logged-in users.
+ */
 router.get('/create', (req, res) => {
     if (!req.session.user) {
         return res.redirect('/user/login');
@@ -110,31 +134,50 @@ router.get('/create', (req, res) => {
     });
 });
 
+/**
+ * Renders the edit form after checking that the logged-in user owns the article.
+ */
 router.get('/:id/edit', async (req, res) => {
     if (!req.session.user) {
         return res.redirect('/user/login');
     }
 
-    const article = await articleDAO.getArticleById(req.params.id);
+    try {
+        const article = await articleDAO.getArticleById(req.params.id);
 
-    if (!article) {
-        return res.status(404).send('Article not found');
+        if (!article) {
+            return res.status(404).send('Article not found');
+        }
+
+        if (article.author_id !== req.session.user.id) {
+            return res.status(403).send('You can only edit your own articles');
+        }
+
+        res.render('articles/create', {
+            title: 'Edit Article',
+            isEdit: true,
+            article: article
+        });
+    } catch (err) {
+        console.error('Load edit article error:', err);
+        res.status(500).send('Failed to load article');
     }
-
-    res.render('articles/create', {
-        title: 'Edit Article',
-        isEdit: true,
-        article: article
-    });
 });
 
-//create new article in database
+/**
+ * Creates a new article and optional image upload.
+ * Returns JSON because the create form submits with fetch.
+ */
 router.post('/',upload.single('image'), async (req,res)=>{
     if(!req.session.user){
-        return res.status(401).send('Unauthorized');
+        return sendJsonError(res, 401, 'Login required');
     }
     const {title,content} = req.body;
     const imageUrl = req.file ? `/uploads/${req.file.filename}`: null;
+
+    if (!title || !content) {
+        return sendJsonError(res, 400, 'Title and content are required');
+    }
 
     console.log('Creating article:',{title,imageUrl})
 
@@ -147,90 +190,114 @@ router.post('/',upload.single('image'), async (req,res)=>{
         )
         res.json({success:true, articleId:Number(articleId)});
     } catch (err){
-        res.status(500).send("Failed to create article")
+        console.error('Create article error:', err);
+        return sendJsonError(res, 500, 'Failed to create article');
     }
 })
 
-//update new article in database
+/**
+ * Updates an existing article after validating ownership.
+ * It can keep, replace, or remove the article image.
+ */
 router.put('/:id', upload.single('image'), async(req,res)=>{
     if(!req.session.user){
-        return res.status(401).send('Unauthorized');
-    }
-
-    const article = await articleDAO.getArticleById(req.params.id);
-
-    if(!article){
-        return res.status(404).send('Article not found');
-    }
-
-    if(article.author_id !== req.session.user.id){
-        return res.status(403).send('Unauthorized');
-    }
-
-    const {title,content,removeImage} = req.body;
-    let imageUrl = article.image_url;
-
-    if(removeImage==='true'){
-        imageUrl = null;
-    } else if(req.file){
-        imageUrl = `/uploads/${req.file.filename}`
-    }
-
-    try{
-        await articleDAO.updateArticle(req.params.id,title,content,imageUrl);
-        res.json({success:true});
-    }catch (err){
-        res.status(500).send("Failed to update article ")
-    }
-})
-
-//delete article in database
-router.delete('/:id',async(req,res)=>{
-    if(!req.session.user){
-        return res.status(401).send('Unauthorized');
-    }
-
-    const article = await articleDAO.getArticleById(req.params.id);
-
-    if (!article) {
-        return res.status(404).send('Article not found');
-    }
-
-    if (article.author_id !== req.session.user.id) {
-        return res.status(403).send('Unauthorized');
+        return sendJsonError(res, 401, 'Login required');
     }
 
     try {
-        await articleDAO.deleteArticle(req.params.id);
-        res.json({ success: true });
-    } catch (err) {
-        res.status(500).send('Failed to delete article');
+        const article = await articleDAO.getArticleById(req.params.id);
+
+        if(!article){
+            return sendJsonError(res, 404, 'Article not found');
+        }
+
+        if(article.author_id !== req.session.user.id){
+            return sendJsonError(res, 403, 'You can only edit your own articles');
+        }
+
+        const {title,content,removeImage} = req.body;
+        let imageUrl = article.image_url;
+
+        if (!title || !content) {
+            return sendJsonError(res, 400, 'Title and content are required');
+        }
+
+        if(removeImage==='true'){
+            imageUrl = null;
+        } else if(req.file){
+            imageUrl = `/uploads/${req.file.filename}`
+        }
+
+        await articleDAO.updateArticle(req.params.id,title,content,imageUrl);
+        res.json({success:true});
+    }catch (err){
+        console.error('Update article error:', err);
+        return sendJsonError(res, 500, 'Failed to update article');
     }
 })
 
+/**
+ * Deletes an article after checking that the logged-in user is the author.
+ */
+router.delete('/:id',async(req,res)=>{
+    if(!req.session.user){
+        return sendJsonError(res, 401, 'Login required');
+    }
 
+    try {
+        const article = await articleDAO.getArticleById(req.params.id);
+
+        if (!article) {
+            return sendJsonError(res, 404, 'Article not found');
+        }
+
+        if (article.author_id !== req.session.user.id) {
+            return sendJsonError(res, 403, 'You can only delete your own articles');
+        }
+
+        await articleDAO.deleteArticle(req.params.id);
+        res.json({ success: true });
+    } catch (err) {
+        console.error('Delete article error:', err);
+        return sendJsonError(res, 500, 'Failed to delete article');
+    }
+})
+
+/**
+ * Shows one full article page and marks whether the current user has liked it.
+ */
 router.get('/:id', async (req, res) => {
-    const article = await articleDAO.getArticleById(req.params.id);
+    try {
+        const article = await articleDAO.getArticleById(req.params.id);
 
-    if (!article) {
-        return res.status(404).send('Article not found');
-    }
-    let userLiked = false;
-    if (req.session.user) {
-        const existingLike = await likesDAO.existingLike(req.session.user.id, article.id);
-        userLiked = existingLike.length > 0;
-    }
+        if (!article) {
+            return res.status(404).send('Article not found');
+        }
 
-    res.render('articles/article', {
-        title: article.title,
-        article: article,
-        userLiked: userLiked
-    });
+        let userLiked = false;
+        if (req.session.user) {
+            const existingLike = await likesDAO.existingLike(req.session.user.id, article.id);
+            userLiked = existingLike.length > 0;
+        }
+
+        res.render('articles/article', {
+            title: article.title,
+            article: article,
+            userLiked: userLiked
+        });
+    } catch (err) {
+        console.error('Get article detail error:', err);
+        res.status(500).send('Failed to load article');
+    }
 });
 
+/**
+ * Toggles the current user's like for an article.
+ * Returns the new like count so the page can update without reloading.
+ */
 router.post('/:id/like', async(req,res)=>{
     if(!req.session.user){
-        return res.status(401).json({ error: 'Login required' });
+        return sendJsonError(res, 401, 'Login required');
     }
 
     try{
@@ -256,7 +323,7 @@ router.post('/:id/like', async(req,res)=>{
         })
     } catch (err) {
         console.error('Like error:', err);
-        res.status(500).json({ error: 'Failed to process like' });
+        return sendJsonError(res, 500, 'Failed to process like');
     }
 })
 

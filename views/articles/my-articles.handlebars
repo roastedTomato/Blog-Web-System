@@ -58,6 +58,9 @@
     const articlesList = document.getElementById('articlesList');
     const noArticles = document.getElementById('noArticles');
 
+    /**
+     * Formats article creation dates for display in the user's article list.
+     */
     function formatDate(dateStr) {
         const date = new Date(dateStr);
         const day = date.getDate();
@@ -67,14 +70,31 @@
         return `${day} ${month} ${year}`;
     }
 
+    /**
+     * Sends an AJAX request and returns parsed JSON.
+     * Used by sorting and deleting articles without reloading the page.
+     */
+    async function requestJson(url, options = {}) {
+        const response = await fetch(url, options);
+        const data = await response.json();
+
+        if (!response.ok) {
+            throw new Error(data.error || 'Request failed');
+        }
+
+        return data;
+    }
+
+    /**
+     * Loads the current user's articles using the selected sort options.
+     */
     async function loadArticles() {
         const sort = sortBy.value;
         const order = sortOrder.value;
 
         try {
 
-            const res = await fetch(`/article/my?sort=${sort}&order=${order}&json=1`);
-            const data = await res.json();
+            const data = await requestJson(`/article/my?sort=${sort}&order=${order}&json=1`);
 
             if (!data.articles || data.articles.length === 0) {
                 articlesList.style.display = 'none';
@@ -112,27 +132,27 @@
             noArticles.style.display = 'none';
         } catch (e) {
             console.error('Load error:', e);
+            alert(e.message || 'Failed to load articles');
         }
     }
 
+    /**
+     * Deletes one of the current user's articles after confirmation.
+     */
     async function deleteArticle(id) {
         if (!confirm('Are you sure you want to delete this article?')) {
             return;
         }
 
         try {
-            const res = await fetch(`/article/${id}`, {
+            await requestJson(`/article/${id}`, {
                 method: 'DELETE'
             });
 
-            if (res.ok) {
-                loadArticles();
-            } else {
-                alert('Failed to delete article');
-            }
+            await loadArticles();
         } catch (e) {
             console.error('Delete error:', e);
-            alert('Error deleting article');
+            alert(e.message || 'Error deleting article');
         }
     }
 
