@@ -115,6 +115,13 @@
         let html = '<div class="comments-nested">';
 
         filtered.forEach(comment => {
+            // Get current user ID and article author ID for permission checks
+            const currentUserId = {{#if user}}{{user.id}}{{else}}null{{/if}};
+            const articleAuthorId = {{article.author_id}};
+
+            // Check if current user can delete this comment (comment owner or article author)
+            const canDelete = currentUserId && (currentUserId === comment.user_id || currentUserId === articleAuthorId);
+
             // Determine CSS class and indentation based on nesting level
             const marginLeft = level * 30;
 
@@ -130,12 +137,38 @@
             html += '  <div class="comment-content">' + escapeHtml(comment.content) + '</div>';
             html += '</div>';
 
+            // Show delete button only for users with permission
+            if (canDelete) {
+                html += '  <div class="comment-actions">';
+                html += '    <button onclick="deleteComment(' + comment.id + ')" class="btn-delete-comment">Delete</button>';
+                html += '  </div>';
+            }
+
+            html += '</div>';
+
             // Recursive call: render child comments (replies to this comment)
             html += renderComments(comments, comment.id, level + 1);
         });
 
         html += '</div>';
         return html;
+    }
+
+    // Delete comment with permission verification
+    async function deleteComment(commentId) {
+        if (!confirm('Are you sure you want to delete this comment?')) {
+            return;
+        }
+        const res = await fetch(`/comment/${commentId}`, {
+            method: 'delete'
+        });
+
+        if (res.ok) {
+            loadComments();
+        } else {
+            const error = await res.json();
+            alert(error.error || 'Failed to delete comment');
+        }
     }
 
     function escapeHtml(text) {
