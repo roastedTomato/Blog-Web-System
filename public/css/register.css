@@ -178,6 +178,24 @@
     color: #dc3545;
 }
 
+/* Password match status */
+.password-status {
+    display: block;
+    margin-top: 8px;
+    font-size: 14px;
+    font-weight: 600;
+    min-height: 20px;
+    transition: all 0.3s ease;
+}
+
+.password-status.match {
+    color: #28a745;
+}
+
+.password-status.mismatch {
+    color: #dc3545;
+}
+
 .error-message {
     background: linear-gradient(135deg, #ff6b6b 0%, #ee5a6f 100%);
     color: white;
