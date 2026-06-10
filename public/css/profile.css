@@ -300,6 +300,22 @@
     font-style: italic;
 }
 
+.password-status {
+    display: block;
+    margin-top: 8px;
+    font-size: 14px;
+    font-weight: 600;
+    min-height: 20px;
+}
+
+.password-status.valid {
+    color: #28a745;
+}
+
+.password-status.invalid {
+    color: #dc3545;
+}
+
 @media (max-width: 700px) {
     .profile-container {
         margin: 24px auto;

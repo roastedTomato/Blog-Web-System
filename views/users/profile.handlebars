@@ -127,6 +127,7 @@
                     required
                     placeholder="Re-enter new password"
             >
+            <span id="password-status" class="password-status"></span>
         </div>
 
         <button type="submit" class="btn btn-changePassword">Change Password</button>
@@ -137,4 +138,61 @@
         <a href="/user/logout" class="btn btn-logout" onclick="return confirm('Are you sure you want to logout?')">Logout</a>
     </div>
 
+    <hr class="section-divider">
+
+    <div class="danger-zone">
+        <h3>Delete Account</h3>
+        <p>Deleting your account will also delete your articles and comments.</p>
+        <form action="/user/delete" method="post">
+            <button type="submit" class="btn btn-delete-account" onclick="return confirm('Delete your account permanently? This cannot be undone.')">
+                Delete Account
+            </button>
+        </form>
+    </div>
+
 </div>
+
+<script>
+    const passwordForm = document.querySelector('.password-form');
+    const newPasswordInput = document.getElementById('newPassword');
+    const confirmPasswordInput = document.getElementById('confirmPassword');
+    const passwordStatus = document.getElementById('password-status');
+
+    /**
+     * Checks whether the new password and confirmation password match.
+     * Returns false when the password form should not be submitted.
+     */
+    function validatePasswords() {
+        const newPassword = newPasswordInput.value;
+        const confirmPassword = confirmPasswordInput.value;
+
+        if (!confirmPassword) {
+            passwordStatus.textContent = '';
+            passwordStatus.className = 'password-status';
+            return true;
+        }
+
+        if (newPassword !== confirmPassword) {
+            passwordStatus.textContent = 'Passwords do not match';
+            passwordStatus.className = 'password-status invalid';
+            return false;
+        }
+
+        passwordStatus.textContent = 'Passwords match';
+        passwordStatus.className = 'password-status valid';
+        return true;
+    }
+
+    newPasswordInput.addEventListener('input', validatePasswords);
+    confirmPasswordInput.addEventListener('input', validatePasswords);
+
+    /**
+     * Prevents password change submission if confirmation is invalid.
+     */
+    passwordForm.addEventListener('submit', function(event) {
+        if (!validatePasswords()) {
+            event.preventDefault();
+            confirmPasswordInput.focus();
+        }
+    });
+</script>
