@@ -24,11 +24,20 @@ router.post('/',async (req,res)=>{
         return res.status(400).json({ error: 'Content and articleId are required' });
     }
 
+    const normalizedParentId = parentId || null;
+
+    if (normalizedParentId) {
+        const depth = await commentDAO.getCommentDepth(normalizedParentId);
+        if (depth >= 2) {
+            return res.status(400).json({ error: 'Replies can only be nested two levels deep' });
+        }
+    }
+
     const commentId = await commentDAO.createComment(
         content,
         req.session.user.id,
         articleId,
-        parentId || null
+        normalizedParentId
     );
 
     res.json({ success: true, commentId: Number(commentId) });
