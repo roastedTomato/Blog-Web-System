@@ -40,6 +40,15 @@
         </div>
     </article>
 
+    <div class="comments-section">
+        <h3>Comments</h3>
+        <div id="commentsContainer" class="comments-container">
+            <div id="commentsList" class="comments-list">
+
+            </div>
+        </div>
+    </div>
+
     {{#if user}}
         {{#if (eq user.id article.author_id)}}
             <div class="article-actions">
@@ -75,4 +84,75 @@
             console.error('Like error:', e);
         }
     }
+</script>
+
+<script>
+    const articleId = {{article.id}};
+
+    async function loadComments(){
+        const res = await fetch(`/comment/article/${articleId}`);
+        const data = await res.json();
+
+        const commentsList = document.getElementById('commentsList');
+        commentsList.innerHTML = renderComments(data.comments, null, 0);
+    }
+
+    /**
+     * Recursively render comments with nested replies support
+     * @param {Array} comments - Array of all comment objects
+     * @param {number|null} parentId - Parent comment ID to filter by (null for top-level comments)
+     * @param {number} level - Current nesting depth level (0 for top-level, increases for replies)
+     * @returns {string} HTML string of rendered comments
+     */
+    function renderComments(comments, parentId, level) {
+        // Filter comments that belong to the current parent
+        const filtered = comments.filter(comment => comment.parent_id === parentId);
+
+        // Base case: return empty string if no comments found at this level
+        if (filtered.length === 0) return '';
+
+        // Start container for this level of comments
+        let html = '<div class="comments-nested">';
+
+        filtered.forEach(comment => {
+            // Determine CSS class and indentation based on nesting level
+            const marginLeft = level * 30;
+
+            //Build comment HTML structure
+            html += '<div class="comment-item" style="margin-left: ' + marginLeft + 'px">';
+            html += '  <div class="comment-header">';
+            html += '    <img src="' + (comment.avatar_url || '/public/avatarImages/default.png') + '" alt="' + comment.username + '" class="comment-avatar">';
+            html += '    <div class="comment-info">';
+            html += '      <span class="comment-author">' + (comment.full_name || comment.username) + '</span>';
+            html += '      <span class="comment-date">' + formatDate(comment.created_at) + '</span>';
+            html += '    </div>';
+            html += '  </div>';
+            html += '  <div class="comment-content">' + escapeHtml(comment.content) + '</div>';
+            html += '</div>';
+
+            // Recursive call: render child comments (replies to this comment)
+            html += renderComments(comments, comment.id, level + 1);
+        });
+
+        html += '</div>';
+        return html;
+    }
+
+    function escapeHtml(text) {
+        const div = document.createElement('div');
+        div.textContent = text;
+        return div.innerHTML;
+    }
+
+    function formatDate(dateStr) {
+        const date = new Date(dateStr);
+        return date.toLocaleString('en-US', {
+            year: 'numeric',
+            month: 'short',
+            day: 'numeric',
+            hour: '2-digit',
+            minute: '2-digit'
+        });
+    }
+    loadComments();
 </script>
