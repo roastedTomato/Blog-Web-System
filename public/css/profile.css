@@ -227,6 +227,37 @@
     background: linear-gradient(135deg, #e5465d 0%, #e082eb 100%);
 }
 
+.danger-zone {
+    max-width: 500px;
+    margin: 0 auto;
+    padding: 20px;
+    border: 2px solid #f8d7da;
+    border-radius: 12px;
+    background: #fff5f5;
+    text-align: left;
+}
+
+.danger-zone h3 {
+    margin: 0 0 10px;
+    color: #842029;
+}
+
+.danger-zone p {
+    color: #842029;
+    margin: 0 0 16px;
+    line-height: 1.5;
+}
+
+.btn-delete-account {
+    width: 100%;
+    background: #dc3545;
+    color: white;
+}
+
+.btn-delete-account:hover {
+    background: #bb2d3b;
+}
+
 /* Password Form Specific */
 .password-form {
     margin-top: 20px;
@@ -267,4 +298,44 @@
     color: #999;
     font-size: 12px;
     font-style: italic;
+}
+
+@media (max-width: 700px) {
+    .profile-container {
+        margin: 24px auto;
+        padding: 24px 18px;
+        border-radius: 12px;
+    }
+
+    .profile-container h2 {
+        font-size: 26px;
+    }
+
+    .profile-container h3 {
+        max-width: none;
+        font-size: 21px;
+    }
+
+    .profile-form,
+    .password-form,
+    .danger-zone {
+        max-width: none;
+    }
+
+    .avatar-selection {
+        justify-content: flex-start;
+    }
+
+    .avatar-option label {
+        min-width: 68px;
+    }
+
+    .profile-actions {
+        flex-direction: column;
+    }
+
+    .profile-actions .btn {
+        min-width: 0;
+        width: 100%;
+    }
 }

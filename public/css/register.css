@@ -178,6 +178,22 @@
     color: #dc3545;
 }
 
+.password-status {
+    display: block;
+    margin-top: 8px;
+    font-size: 14px;
+    font-weight: 600;
+    min-height: 20px;
+}
+
+.password-status.valid {
+    color: #28a745;
+}
+
+.password-status.invalid {
+    color: #dc3545;
+}
+
 .error-message {
     background: linear-gradient(135deg, #ff6b6b 0%, #ee5a6f 100%);
     color: white;
@@ -204,3 +220,27 @@
     animation: slideDown 0.3s ease;
 }
 
+@media (max-width: 700px) {
+    .register-container {
+        margin: 24px auto;
+        padding: 24px 18px;
+        border-radius: 12px;
+    }
+
+    .register-container h2 {
+        font-size: 26px;
+    }
+
+    .register-form .form-group,
+    .register-form .btn-register {
+        max-width: none;
+    }
+
+    .avatar-selection {
+        justify-content: flex-start;
+    }
+
+    .avatar-option label {
+        min-width: 68px;
+    }
+}
