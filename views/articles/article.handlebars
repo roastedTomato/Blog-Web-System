@@ -42,6 +42,19 @@
 
     <div class="comments-section">
         <h3>Comments</h3>
+
+        {{#if user}}
+            <div class="comment-from">
+                <textarea id="commentContent" placeholder="Write a comment..." rows="3"></textarea>
+                <button onclick="submitComment()" class="btn btn-comment">Post Comment</button>
+            </div>
+        {{else}}
+            <div class="login-to-comment">
+                <p>Please log in to join the discussion</p>
+                <a href="/user/login" class="btn-login-to-comment">Login to Comment</a>
+            </div>
+        {{/if}}
+
         <div id="commentsContainer" class="comments-container">
             <div id="commentsList" class="comments-list">
 
@@ -152,6 +165,31 @@
 
         html += '</div>';
         return html;
+    }
+
+    // Submit new comment
+    async function submitComment(){
+        const content = document.getElementById('commentContent').value.trim();
+        if(!content){
+            alert('Comment cannot be empty');
+            return;
+        }
+        const res = await fetch('/comment',{
+            method:'POST',
+            headers:{'Content-Type':'application/json'},
+            body:JSON.stringify({
+                content:content,
+                articleId:articleId
+            })
+        });
+
+        if(res.ok){
+            document.getElementById('commentContent').value = '';
+            await loadComments();
+        } else{
+            const error = await res.json();
+            alert(error.error || 'Failed to post comment');
+        }
     }
 
     // Delete comment with permission verification

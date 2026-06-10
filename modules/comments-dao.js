@@ -21,6 +21,15 @@ async function getCommentsByArticleId(articleId) {
     return await db.query(query, [articleId]);
 }
 
+async function createComment(content, userId, articleId, parentId = null) {
+    const result = await db.query(
+        'INSERT INTO comments (content, user_id, article_id, parent_id, created_at) VALUES (?, ?, ?, ?, NOW())',
+        [content, userId, articleId, parentId]
+    );
+
+    return Number(result.insertId);
+}
+
 async function deleteComment(commentId, userId) {
     // validation: if commenter or author
     const comment = await db.query(`
@@ -46,8 +55,29 @@ async function deleteComment(commentId, userId) {
     return true;
 }
 
+// multiple comments: two levels of nesting
+async function getCommentDepth(commentId) {
+    let depth = 0;
+    let currentId = commentId;
+
+    while (currentId !== null && depth < 3) {
+        const comment = await db.query(
+            'SELECT parent_id FROM comments WHERE id = ?',
+            [currentId]
+        );
+
+        if (comment.length === 0) break;
+
+        currentId = comment[0].parent_id;
+        if (currentId !== null) depth++;
+    }
+
+    return depth;
+}
 
 module.exports = {
     getCommentsByArticleId,
+    createComment,
     deleteComment,
+    getCommentDepth
 };

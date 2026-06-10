@@ -13,6 +13,27 @@ router.get('/article/:articleId', async (req, res) => {
     }
 });
 
+//create comment
+router.post('/',async (req,res)=>{
+    if (!req.session.user) {
+        return res.status(401).json({ error: 'Login required' });
+    }
+    const { content, articleId, parentId } = req.body;
+
+    if (!content || !articleId) {
+        return res.status(400).json({ error: 'Content and articleId are required' });
+    }
+
+    const commentId = await commentDAO.createComment(
+        content,
+        req.session.user.id,
+        articleId,
+        parentId || null
+    );
+
+    res.json({ success: true, commentId: Number(commentId) });
+})
+
 // delete comments
 router.delete('/:id', async (req, res) => {
     if (!req.session.user) {
