@@ -13,7 +13,7 @@ router.get('/article/:articleId', async (req, res) => {
     }
 });
 
-//create comment
+//create/reply comment
 router.post('/',async (req,res)=>{
     if (!req.session.user) {
         return res.status(401).json({ error: 'Login required' });

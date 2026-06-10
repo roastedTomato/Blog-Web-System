@@ -148,12 +148,27 @@
             html += '    </div>';
             html += '  </div>';
             html += '  <div class="comment-content">' + escapeHtml(comment.content) + '</div>';
-            html += '</div>';
 
-            // Show delete button only for users with permission
-            if (canDelete) {
+            // Show action buttons only for logged-in users
+            if (currentUserId) {
                 html += '  <div class="comment-actions">';
-                html += '    <button onclick="deleteComment(' + comment.id + ')" class="btn-delete-comment">Delete</button>';
+
+                // Show reply button only for levels less than 2 (limit nesting depth)
+                if (level < 2) {
+                    html += '    <button onclick="showReplyForm(' + comment.id + ')" class="btn-reply">Reply</button>';
+                }
+
+                // Show delete button only for users with permission
+                if (canDelete) {
+                    html += '    <button onclick="deleteComment(' + comment.id + ')" class="btn-delete-comment">Delete</button>';
+                }
+
+                html += '  </div>';
+
+                // Hidden reply form (shown when Reply button is clicked)
+                html += '  <div id="replyForm-' + comment.id + '" class="reply-form" style="display:none">';
+                html += '    <textarea id="replyContent-' + comment.id + '" placeholder="Write a reply..." rows="2"></textarea>';
+                html += '    <button onclick="submitReply(' + comment.id + ')" class="btn btn-comment-small">Post Reply</button>';
                 html += '  </div>';
             }
 
@@ -165,6 +180,48 @@
 
         html += '</div>';
         return html;
+    }
+
+    // Show/hide reply form
+    function showReplyForm(commentId) {
+        const form = document.getElementById('replyForm-' + commentId);
+        if (form) {
+            form.style.display = form.style.display === 'none' ? 'block' : 'none';
+        }
+    }
+
+    // Submit reply to a comment
+    async function submitReply(parentId) {
+        const content = document.getElementById('replyContent-' + parentId).value.trim();
+
+        if (!content) {
+            alert('Reply cannot be empty');
+            return;
+        }
+
+        try {
+            const res = await fetch('/comment', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    content: content,
+                    articleId: articleId,
+                    parentId: parentId
+                })
+            });
+
+            if (res.ok) {
+                document.getElementById('replyContent-' + parentId).value = '';
+                document.getElementById('replyForm-' + parentId).style.display = 'none';
+                await loadComments();
+            } else {
+                const error = await res.json();
+                alert(error.error || 'Failed to post reply');
+            }
+        } catch (e) {
+            console.error('Submit reply error:', e);
+            alert('Error posting reply');
+        }
     }
 
     // Submit new comment
