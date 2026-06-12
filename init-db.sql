@@ -85,11 +85,11 @@ INSERT INTO avatars (name, icon_path, display_order) VALUES
 
 -- Insert sample user data
 INSERT INTO users (username, password_hash, full_name, birthday, bio, avatar_url) VALUES
-    ('alice', '$2b$10$abcdefghijklmnopqrstuuABCDEFGHIJKLMNOPQRSTUVWXYZ01234', 'Alice Johnson', '1995-03-15', 'Love coding and coffee!', '/public/avatarImages/cat.png'),
-    ('bob', '$2b$10$abcdefghijklmnopqrstuuABCDEFGHIJKLMNOPQRSTUVWXYZ01234', 'Bob Smith', '1998-07-22', 'Travel enthusiast and photographer', '/public/avatarImages/dog.png'),
-    ('charlie', '$2b$10$abcdefghijklmnopqrstuuABCDEFGHIJKLMNOPQRSTUVWXYZ01234', 'Charlie Brown', '2000-11-08', 'Student learning web development', '/public/avatarImages/panda.png'),
-    ('diana', '$2b$10$abcdefghijklmnopqrstuuABCDEFGHIJKLMNOPQRSTUVWXYZ01234', 'Diana Prince', '1997-01-30', 'Tech blogger and AI researcher', '/public/avatarImages/fox.png'),
-    ('eve', '$2b$10$abcdefghijklmnopqrstuuABCDEFGHIJKLMNOPQRSTUVWXYZ01234', 'Eve Wilson', '1999-05-12', 'Full-stack developer', '/public/avatarImages/rabbit.png');
+    ('alice', '$2b$10$51bzwKpoC.Bm8iJZxPunqe1RF.pZInNAqXCJa1M6zsVFNgSq5HR66', 'Alice Johnson', '1995-03-15', 'Love coding and coffee!', '/public/avatarImages/cat.png'),
+    ('bob', '$2b$10$51bzwKpoC.Bm8iJZxPunqe1RF.pZInNAqXCJa1M6zsVFNgSq5HR66', 'Bob Smith', '1998-07-22', 'Travel enthusiast and photographer', '/public/avatarImages/dog.png'),
+    ('charlie', '$2b$10$51bzwKpoC.Bm8iJZxPunqe1RF.pZInNAqXCJa1M6zsVFNgSq5HR66', 'Charlie Brown', '2000-11-08', 'Student learning web development', '/public/avatarImages/panda.png'),
+    ('diana', '$2b$10$51bzwKpoC.Bm8iJZxPunqe1RF.pZInNAqXCJa1M6zsVFNgSq5HR66', 'Diana Prince', '1997-01-30', 'Tech blogger and AI researcher', '/public/avatarImages/fox.png'),
+    ('eve', '$2b$10$51bzwKpoC.Bm8iJZxPunqe1RF.pZInNAqXCJa1M6zsVFNgSq5HR66', 'Eve Wilson', '1999-05-12', 'Full-stack developer', '/public/avatarImages/rabbit.png');
 
 -- Insert sample articles data
 INSERT INTO articles (title, content, image_url, author_id, created_at) VALUES
