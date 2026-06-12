@@ -171,12 +171,12 @@
 }
 
 .btn-change:hover {
-    background: linear-gradient(135deg, #5568d3 0%, #63408a 100%);
+    background: linear-gradient(135deg, #764ba2 0%, #667eea 100%);
 }
 
 .btn-changePassword {
     width: 100%;
-    background: linear-gradient(135deg, #ffa726 0%, #ff7043 100%);
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
     color: white;
     margin-top: 10px;
     padding: 14px;
@@ -185,7 +185,7 @@
 }
 
 .btn-changePassword:hover {
-    background: linear-gradient(135deg, #ff9800 0%, #ff5722 100%);
+    background: linear-gradient(135deg, #764ba2 0%, #667eea 100%);
 }
 
 /* Section Divider */
