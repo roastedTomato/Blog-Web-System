@@ -183,17 +183,23 @@
     }
 
     /**
-     * Checks whether the two password fields match.
+     * Checks whether the password is long enough and both password fields match.
      * Returns false when the form should not be submitted.
      */
     function validatePasswords() {
         const password = passwordInput.value;
         const confirmPassword = confirmPasswordInput.value;
 
+        if (password && password.length < 6) {
+            passwordStatus.textContent = 'Password must be at least 6 characters long';
+            passwordStatus.className = 'password-status invalid';
+            return false;
+        }
+
         if (!confirmPassword) {
             passwordStatus.textContent = '';
             passwordStatus.className = 'password-status';
-            return true;
+            return !password || password.length >= 6;
         }
 
         if (password !== confirmPassword) {

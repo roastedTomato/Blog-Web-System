@@ -158,17 +158,23 @@
     const passwordStatus = document.getElementById('password-status');
 
     /**
-     * Checks whether the new password and confirmation password match.
+     * Checks whether the new password is long enough and both password fields match.
      * Returns false when the password form should not be submitted.
      */
     function validatePasswords() {
         const newPassword = newPasswordInput.value;
         const confirmPassword = confirmPasswordInput.value;
 
+        if (newPassword && newPassword.length < 6) {
+            passwordStatus.textContent = 'New password must be at least 6 characters long';
+            passwordStatus.className = 'password-status invalid';
+            return false;
+        }
+
         if (!confirmPassword) {
             passwordStatus.textContent = '';
             passwordStatus.className = 'password-status';
-            return true;
+            return !newPassword || newPassword.length >= 6;
         }
 
         if (newPassword !== confirmPassword) {
