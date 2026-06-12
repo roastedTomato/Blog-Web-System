@@ -13,8 +13,21 @@ body {
     overflow-x: hidden;
 }
 
+body.has-home-nav {
+    padding-top: 15px;
+}
+
 img {
     max-width: 100%;
+}
+
+.site-nav {
+    position: absolute;
+    top: 10px;
+    left: 20%;
+    z-index: 100;
+    padding: 4px 0;
+    transform: translateX(-50%);
 }
 
 /* buttons basic style */
@@ -35,6 +48,28 @@ img {
     transform: translateY(-2px);
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
     color: #333333;
+}
+
+.btn-home-nav,
+.btn-login,
+.btn-register,
+.btn-editProfile,
+.btn-change,
+.btn-changePassword,
+.btn-create {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+}
+
+.btn-home-nav:hover,
+.btn-login:hover,
+.btn-register:hover,
+.btn-editProfile:hover,
+.btn-change:hover,
+.btn-changePassword:hover,
+.btn-create:hover {
+    background: linear-gradient(135deg, #764ba2 0%, #667eea 100%);
+    color: white;
 }
 
 /* alert windows basic style */

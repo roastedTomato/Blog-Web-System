@@ -7,7 +7,12 @@
     <link rel="stylesheet" href="/public/css/site.css">
 </head>
 
-<body>
+<body class="{{#if showHomeNav}}has-home-nav{{/if}}">
+{{#if showHomeNav}}
+    <nav class="site-nav">
+        <a href="/" class="btn btn-home-nav">Home</a>
+    </nav>
+{{/if}}
 {{{body}}}
 </body>
 
