@@ -8,6 +8,8 @@ This document shows the planned page structure for the blogging website. The wir
 +------------------------------------------------------+
 |                    Blog Platform                     |
 +------------------------------------------------------+
+| No Home button is shown on the home page             |
++------------------------------------------------------+
 | Welcome message                                      |
 | Short introduction about the website                 |
 +------------------------------------------------------+
@@ -18,6 +20,8 @@ This document shows the planned page structure for the blogging website. The wir
 ## Register Page
 
 ```text
++------------------------------------------------------+
+| [Home]                                               |
 +------------------------------------------------------+
 |                    User Registration                 |
 +------------------------------------------------------+
@@ -31,9 +35,9 @@ This document shows the planned page structure for the blogging website. The wir
 | [ confirm password input                          ]   |
 | Password match message                               |
 +------------------------------------------------------+
-| Full Name                                            |
-| Birthday                                             |
-| Biography                                            |
+| Full Name *                                          |
+| Birthday *                                           |
+| Biography *                                          |
 +------------------------------------------------------+
 | Choose Avatar                                        |
 | (Avatar) (Avatar) (Avatar) (Avatar)                  |
@@ -46,6 +50,8 @@ This document shows the planned page structure for the blogging website. The wir
 ## Login Page
 
 ```text
++------------------------------------------------------+
+| [Home]                                               |
 +------------------------------------------------------+
 |                       User Login                     |
 +------------------------------------------------------+
@@ -63,6 +69,8 @@ This document shows the planned page structure for the blogging website. The wir
 ## Article List Page
 
 ```text
++------------------------------------------------------+
+| [Home]                                               |
 +------------------------------------------------------+
 | All Articles                          [My Articles]  |
 +------------------------------------------------------+
@@ -82,6 +90,8 @@ This document shows the planned page structure for the blogging website. The wir
 
 ```text
 +------------------------------------------------------+
+| [Home]                                               |
++------------------------------------------------------+
 | My Articles          [All Articles] [Create Article] |
 +------------------------------------------------------+
 | Sort by: [Date v]    Order: [Descending v]           |
@@ -99,6 +109,8 @@ This document shows the planned page structure for the blogging website. The wir
 ## Create / Edit Article Page
 
 ```text
++------------------------------------------------------+
+| [Home]                                               |
 +------------------------------------------------------+
 | Create New Article / Edit Article        [Cancel]    |
 +------------------------------------------------------+
@@ -125,6 +137,8 @@ This document shows the planned page structure for the blogging website. The wir
 
 ```text
 +------------------------------------------------------+
+| [Home]                                               |
++------------------------------------------------------+
 | <- Back to Articles                                  |
 +------------------------------------------------------+
 | Author Avatar | Author Name | Publish Date           |
@@ -138,7 +152,7 @@ This document shows the planned page structure for the blogging website. The wir
 +------------------------------------------------------+
 | Likes count                         [Like / Unlike]  |
 +------------------------------------------------------+
-| Comments                                             |
+| Comments                             [Hide comments] |
 | [ comment textbox                                ]   |
 | [ Post Comment ]                                     |
 +------------------------------------------------------+
@@ -153,6 +167,8 @@ This document shows the planned page structure for the blogging website. The wir
 ## Profile Page
 
 ```text
++------------------------------------------------------+
+| [Home]                                               |
 +------------------------------------------------------+
 |                      Edit Profile                    |
 +------------------------------------------------------+
@@ -172,7 +188,7 @@ This document shows the planned page structure for the blogging website. The wir
 | Confirm New Password                                 |
 | [ Change Password ]                                  |
 +------------------------------------------------------+
-| [Back to Home] [Logout]                              |
+| [Logout]                                             |
 +------------------------------------------------------+
 | Delete Account                                       |
 | Warning text                                         |
@@ -189,12 +205,14 @@ The same page structures are used on desktop and mobile, but the layout changes 
 - Forms use full-width inputs on small screens.
 - Article cards and comment boxes avoid horizontal scrolling.
 - Nested comments reduce indentation on small screens so the text stays readable.
+- The Home navigation button is fixed near the top of non-home pages at roughly 10% of the page width
 
 ## Design Notes
 
 - Each page has a clear heading near the top.
 - Primary actions are placed near the heading or near the content they affect.
+- The home page does not show a Home button because the user is already there.
 - Form fields are grouped by purpose, such as account details, password changes, and article content.
 - Article pages show content first, then social actions such as likes and comments.
-- Repeated elements, such as article rows and comments, use consistent spacing and button styles.
+- Repeated elements, such as article rows, comments, Home, Register, Login, Edit Profile, Create, and Cancel actions, use consistent spacing and button styles.
 - The CSS is organized by shared global styles plus page-specific styles.
