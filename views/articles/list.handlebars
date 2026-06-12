@@ -141,4 +141,14 @@
 
     sortBy.addEventListener('change', loadArticles);
     sortOrder.addEventListener('change', loadArticles);
+
+    /**
+     * Refreshes like counts when the user returns from an article page.
+     * Browsers often restore list pages from cache, so the old like count can otherwise remain visible.
+     */
+    window.addEventListener('pageshow', function(event) {
+        if (event.persisted) {
+            loadArticles();
+        }
+    });
 </script>
