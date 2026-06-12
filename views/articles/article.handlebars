@@ -41,23 +41,28 @@
     </article>
 
     <div class="comments-section">
-        <h3>Comments</h3>
+        <div class="comments-header">
+            <h3>Comments</h3>
+            <button type="button" id="toggleCommentsBtn" class="btn-toggle-comments" onclick="toggleComments()">Hide comments</button>
+        </div>
 
-        {{#if user}}
-            <div class="comment-from">
-                <textarea id="commentContent" placeholder="Write a comment..." rows="3"></textarea>
-                <button onclick="submitComment()" class="btn btn-comment">Post Comment</button>
-            </div>
-        {{else}}
-            <div class="login-to-comment">
-                <p>Please log in to join the discussion</p>
-                <a href="/user/login" class="btn-login-to-comment">Login to Comment</a>
-            </div>
-        {{/if}}
+        <div id="commentsPanel">
+            {{#if user}}
+                <div class="comment-from">
+                    <textarea id="commentContent" placeholder="Write a comment..." rows="3"></textarea>
+                    <button onclick="submitComment()" class="btn btn-comment">Post Comment</button>
+                </div>
+            {{else}}
+                <div class="login-to-comment">
+                    <p>Please log in to join the discussion</p>
+                    <a href="/user/login" class="btn-login-to-comment">Login to Comment</a>
+                </div>
+            {{/if}}
 
-        <div id="commentsContainer" class="comments-container">
-            <div id="commentsList" class="comments-list">
+            <div id="commentsContainer" class="comments-container">
+                <div id="commentsList" class="comments-list">
 
+                </div>
             </div>
         </div>
     </div>
@@ -120,6 +125,18 @@
 
 <script>
     const articleId = {{article.id}};
+
+    /**
+     * Shows or hides the full comment area for the article.
+     */
+    function toggleComments() {
+        const panel = document.getElementById('commentsPanel');
+        const button = document.getElementById('toggleCommentsBtn');
+        const isHidden = panel.style.display === 'none';
+
+        panel.style.display = isHidden ? 'block' : 'none';
+        button.textContent = isHidden ? 'Hide comments' : 'Show comments';
+    }
 
     /**
      * Loads the latest comments for the current article.
