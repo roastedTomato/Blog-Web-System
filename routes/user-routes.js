@@ -93,13 +93,13 @@ router.post('/register', async (req, res) => {
     const { username, password, confirmPassword, fullName, birthday, bio, avatarId } = req.body;
 
     // 1. Validation: Check required fields
-    if (!username || !password || !confirmPassword) {
+    if (!username || !password || !confirmPassword || !fullName || !birthday || !bio) {
         const avatars = await userDAO.getActiveAvatars();
         return res.status(400).render('users/register', {
             title: 'User Registration',
             avatars: avatars,
             formData: { username, fullName, birthday, bio },
-            error: 'Username, password, and confirm password are required'
+            error: 'Username, password, full name, birthday, and biography are required'
         });
     }
 

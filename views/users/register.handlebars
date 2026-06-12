@@ -62,6 +62,7 @@
                     type="text"
                     id="fullName"
                     name="fullName"
+                    required
                     maxlength="100"
                     placeholder="Enter your full name"
                     value="{{formData.fullName}}"
@@ -74,6 +75,7 @@
                     type="date"
                     id="birthday"
                     name="birthday"
+                    required
                     value="{{formData.birthday}}"
             >
             <small>Select your birthdate</small>
@@ -85,6 +87,7 @@
                     id="bio"
                     name="bio"
                     rows="4"
+                    required
                     maxlength="500"
                     placeholder="Tell us about yourself..."
             >{{formData.bio}}</textarea>
