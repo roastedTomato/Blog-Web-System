@@ -205,7 +205,7 @@ The same page structures are used on desktop and mobile, but the layout changes 
 - Forms use full-width inputs on small screens.
 - Article cards and comment boxes avoid horizontal scrolling.
 - Nested comments reduce indentation on small screens so the text stays readable.
-- The Home navigation button is fixed near the top of non-home pages at roughly 10% of the page width
+- The Home navigation button is fixed near the top of non-home pages at roughly 10% of the page width.
 
 ## Design Notes
 
