@@ -18,7 +18,7 @@ function sendJsonError(res, status, message) {
 
 //1.for image: ensure upload directory exists, create it if not
 if(!fs.existsSync(uploadDir)){
-    fs.mkdirSync(uploadDir,{recursive:true})
+    fs.mkdirSync(uploadDir,{recursive:true})  // recursive: true creates parent directories if needed
 }
 
 //2.for image: configure file storage rules
@@ -35,7 +35,9 @@ const storage = multer.diskStorage({
      */
     filename: function(req, file, cb) {
         const ext = path.extname(file.originalname).toLowerCase();
+        // Remove special characters from filename and replace with hyphens (g=global, i=case-insensitive)
         const safeBaseName = path.basename(file.originalname, ext).replace(/[^a-z0-9_-]/gi, '-');
+        // Create unique filename by adding timestamp to prevent overwriting
         const uniqueName = Date.now() + '-' + safeBaseName + ext;
         cb(null, uniqueName);
     }

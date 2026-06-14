@@ -10,10 +10,13 @@ This document shows the planned page structure for the blogging website. The wir
 +------------------------------------------------------+
 | No Home button is shown on the home page             |
 +------------------------------------------------------+
-| Welcome message                                      |
-| Short introduction about the website                 |
+| Welcome message                                      |                |
 +------------------------------------------------------+
-| [Browse Articles] [Create Article / Profile]         |
+| Logged out: [Register] [Login]                       |
+| Logged in:  [Profile] [My Articles] [Create Article] |
+|             [Logout]                                 |
++------------------------------------------------------+
+| [Browse Articles]                                    |
 +------------------------------------------------------+
 ```
 
@@ -72,7 +75,8 @@ This document shows the planned page structure for the blogging website. The wir
 +------------------------------------------------------+
 | [Home]                                               |
 +------------------------------------------------------+
-| All Articles                          [My Articles]  |
+| Logged out: All Articles     [Register] [Login]      |
+| Logged in:  All Articles              [My Articles]  |
 +------------------------------------------------------+
 | Sort by: [Date v]    Order: [Descending v]           |
 +------------------------------------------------------+

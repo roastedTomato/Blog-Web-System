@@ -54,16 +54,18 @@ BigInt.prototype.toJSON = function() {
     return Number(this);
 };
 
-//setup cookie-parser
+// Setup cookie-parser middleware to parse cookies from incoming requests
+// This makes cookie data available via req.cookies
 const cookieParser = require("cookie-parser")
 app.use(cookieParser());
 
-//setup express-session
+// Setup express-session for managing user sessions and login state
+// Sessions allow us to persist user data across multiple requests
 const session = require("express-session");
 app.use(session({
-    resave: false,
-    saveUninitialized: false,
-    secret: process.env.SESSION_SECRET || "COMPX569"
+    resave: false,              // Don't save session if it hasn't been modified (performance optimization)
+    saveUninitialized: false,   // Don't create session storage for anonymous users (saves memory)
+    secret: process.env.SESSION_SECRET || "COMPX569"  // Secret key for signing the session ID cookie
 }));
 
 // Make the "user" session object available to all views

@@ -84,7 +84,7 @@ async function getCommentDepth(commentId) {
         if (comment.length === 0) break;
 
         currentId = comment[0].parent_id;
-        if (currentId !== null) depth++;
+        depth++;
     }
 
     return depth;

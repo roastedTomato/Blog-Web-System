@@ -32,13 +32,6 @@
 }
 
 /* ===== Action Buttons ===== */
-.action-buttons {
-    margin-top: 30px;
-    display: flex;
-    gap: 30px;
-    justify-content: center;
-    flex-wrap: wrap;
-}
 
 .action-buttons .btn {
     min-width: 150px;
