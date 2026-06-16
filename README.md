@@ -1,17 +1,3 @@
-# Final Project - Web
-
-Begin by forking this repository into your lab exercises namespace by clicking the ```fork``` button.
-
-![](spec/template/fork-button.png)
-
-Select your lab exercises namespace as the fork destination on the resulting window.
-
-Once forked, clone the repository to your computer by following the instructions for your editor.
-
-This is an individual assignment, and must be completed without assistance from other students, external persons, or online solution providers. You are welcome to use static online resources without other limitations. You must fully understand your solution and be prepared to explain, justify, and defend your code and design decisions.
-
-Your completed code must be pushed to Gitlab at a time specified on moodle. Submissions delivered after this period will not be considered due to grade submission deadlines. You must attend a scheduled presentation time where you will demonstrate your solution to your lecturer.
-
 # Overview
 
 In this project you will develop a blogging website using the skills you have learnt through the _Programming with Web Technology_ course. The project will also give you the opportunity to show how you can use online resources to discover and apply content not taught within the course.
@@ -21,51 +7,6 @@ Through the website, users can register for an account, which is needed to be ab
 In this document you are given a list of requirements for the blogging system. You will also have the opportunity to customise aspects of the project, within the broader requirements.
 
 The project will give you the opportunity to work on a larger-scale project than you've had experience with previously in the course. It will also allow you to showcase your individual software development skills.
-
----
-
-## Marking Criteria
-
-This project is worth 18% of your final grade for the _Programming with Web Technology_ course. The project grade is weighted based on the following categories.
-
-
-| Category                             | Grade |
-|--------------------------------------|-------|
-| Web interface feature implementation | 50%   |
-| Design Pattern usage                 | 10%   |
-| Code quality                         | 30%   |
-| Version control usage                | 10%   |
-
-Grading will be conducted in-person during a scheduled presentation session, where you will be asked to demonstrate your application operating with existing accounts and content.
-
-You are expected to understand and be able to explain all aspects of your project, and will be asked questions about design decisions and code structure during your demonstration. Your final project grade may be scaled down by up to 50% if you are unable to explain your code, or if your solution has not been fully authored by you.
-
-
-### Web interface feature implementation (50%)
-
-In the **Web Interface Requirements** section below, a list of features for the web interface are shown. This grade will be determined by the overall completion of required features, and the functionality of each of these features.
-
-
-### Design Pattern usage (10%)
-
-Your code should demonstrate appropriate usage of design patterns where applicable.
-
-
-### Code Quality (30%)
-
-Your code must be easily understandable by third parties, and conform to best practices. This includes the use of appropriate variable and identifier names, sufficient commenting, and breaking your code up into appropriate modules, amongst other considerations. It should be written in a way that would make it easy for other people to understand and modify.
-
-You should use code organisation and quality techniques covered in the course content where possible and appropriate. This would include use of modular routing, design patterns, refactoring, and testing where possible. Consider carefully how you can structure things like DAOs, CSS, Handlebars, and JavaScript files so that you can effectively share and reuse code.
-
-The project is designed to provide an opportunity to apply the technologies and concepts taught in COMPX569. It is expected that you will use the general approaches and principles taught in COMPX569 to approach the implementation. While you may integrate some code from other sources for specific components like the WYSIWYG you should not use any premade templates or frameworks for larger parts of the project. If you have doubts about what tools are appropriate to use, ask your lecturer.
-
-
-### Version control usage (10%)
-
-When working on large projects, use of version control is very important to ensure that work can be undone and recovered to restore functionality in the event that errors were made in development. Usage of git is expected, and regular committing with relevant commit messages will be evaluated. Grade will be determined through evaluation of the project commit log. It is expected that there will be a single commit per day (averaged over the duration of the project) at an **absolute minimum**.
-
-
----
 
 ## Web Interface Requirements
 
@@ -145,14 +86,3 @@ To form the core functionality of this application, the following requirements n
 
 3. It is suggested that you have a structured approach to interface design and consider creating "wireframe" outlines of your pages so you can plan what elements need to be on each page and how they are positioned. You may wish to create hand-drawn wireframe designs or investigate using a tool like Figma.
 
-
-# Deliverables & Project Submission
-
-
-## Source Code
-
-Your git repository will serve as the submission for your project source code. Ensure that your repository master branch is up-to-date on or before the due date given on moodle. Any commits after this deadline will be ignored by the markers.
-
-Ensure that the provided [`db-init.sql`](./init-db.sql) file contains the necessary SQL statements to recreate and initialise your database manually if required.
-
-If any special setup instructions are required, please document these in the provided [`SETUP.md`](./SETUP.md) file.
