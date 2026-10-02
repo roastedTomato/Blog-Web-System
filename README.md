@@ -1,88 +1,120 @@
-# Overview
+# Blog Web System
 
-In this project you will develop a blogging website using the skills you have learnt through the _Programming with Web Technology_ course. The project will also give you the opportunity to show how you can use online resources to discover and apply content not taught within the course.
+A full-stack blogging application built with Node.js, Express, Handlebars and MariaDB. It combines server-rendered pages with Fetch-based interactions for article sorting, comments and likes.
 
-Through the website, users can register for an account, which is needed to be able to post articles and to leave comments on others. When logged in, they have full control of the content they have authored: creating, updating and deleting their content and comments.
+## Features
 
-In this document you are given a list of requirements for the blogging system. You will also have the opportunity to customise aspects of the project, within the broader requirements.
+- User registration, login/logout and session-based authentication.
+- Username availability checks, preset avatars, profile editing and password changes.
+- Password hashing with bcrypt.
+- Article creation, editing and deletion with author ownership checks.
+- Quill rich-text editing and optional image uploads (5 MB limit).
+- Article sorting by title, author or date without a full page reload.
+- Like/unlike interactions with live counts.
+- Comments and replies with a two-level nesting limit, plus permission checks for deletion.
+- Account deletion with related records removed through database foreign keys.
 
-The project will give you the opportunity to work on a larger-scale project than you've had experience with previously in the course. It will also allow you to showcase your individual software development skills.
+## Technology stack
 
-## Web Interface Requirements
+| Layer | Technologies |
+| --- | --- |
+| Frontend | HTML, CSS, JavaScript, Handlebars, Fetch API, Quill |
+| Backend | Node.js, Express, express-session, Multer |
+| Database | MariaDB, SQL joins, foreign keys and indexes |
+| Configuration | dotenv and environment variables |
 
-To form the core functionality of this application, the following requirements need to be met.
+## Architecture
 
+Browser requests are handled by Express routes, which call DAO modules for database access. Routes render Handlebars views or return JSON for interactive features. MariaDB stores user accounts and application content; uploaded images are stored locally.
 
-### General
+```text
+app.js              Express setup, sessions and route registration
+routes/             User, article and comment request handlers
+modules/            Database connection pool and DAO modules
+views/              Handlebars page templates and browser interactions
+public/css/         Page styles
+public/avatarImages/ Preset avatars
+public/uploads/     Article images
+init-db.sql         Schema and sample data
+.env.sample         Configuration template
+```
 
-1. Database connection details should be stored in an external configuration or `.env` file, and should not be included in the repository. Ensure a `.env.sample` file is present to indicate what values need to be supplied.
+## Database design
 
-2. Make use of prepared statements when dealing with user-provided data,
+| Table | Purpose |
+| --- | --- |
+| users | Account details and password hashes |
+| avatars | Preset avatar options |
+| articles | Article content linked to its author |
+| comments | Comments linked to users, articles and optional parent comments |
+| likes | User/article relationships with a composite primary key preventing duplicate likes |
 
+The DAO layer uses parameterised SQL for user-provided values. Dynamic article sort fields are selected from a whitelist. Foreign keys maintain relationships and cascade deletion of dependent records.
 
-### User accounts
+## Run locally
 
-1. Users must be able to create new accounts. Each new user should be able to choose a username (which must be unique) and a password. At minimum, a user's real name and date of birth should also be recorded, along with a brief description about themselves.
+Install Node.js/npm and MariaDB. Dependencies are recorded in `package-lock.json`.
 
-2. When selecting a username while creating an account, users should be immediately informed if the given username is already taken. Users should not have to submit a form to discover whether their chosen username is taken - you will have to investigate how to use AJAX/Fetch for this.
+```sh
+npm ci
+```
 
-3. When selecting a password while creating an account, users should be presented with two password textboxes (e.g. "Choose password", and "re-enter password"). They must type the same password in each box in order to proceed. If the user didn't enter the same password in both textboxes, they should not be allowed to submit the form. Ideally, a visual notification message, such as ("passwords do not match"), should also be displayed.
+Create a dedicated development database, then import the schema and sample records:
 
-4. Users' passwords should not be stored in plaintext - they should be appropriately hashed and salted. You will need to research hashing and salting; we can provide some materials that will help with this if required.
+```sh
+mariadb -u your_username -p -e "CREATE DATABASE blog_project;"
+mariadb -u your_username -p blog_project < init-db.sql
+```
 
-5. When creating an account, users must be able to choose from amongst a set of predefined "avatar" icons to represent themselves.
+**The initialisation script drops and recreates the application tables. Use a new development database, not one containing data you want to keep.**
 
-6. Once a user has created an account, they must be able to log in and log out.
+Copy `.env.sample` to `.env` and configure your own values:
 
-7. Users must be able to edit any of their account information (including their username), and also be able to delete their account. If a user deletes their account, all of their articles and comments (see below) should also be deleted.
+```sh
+cp .env.sample .env
+```
 
+```env
+EXPRESS_PORT=3000
+SESSION_SECRET=replace-with-a-long-random-secret
+DB_HOST=localhost
+DB_PORT=3306
+DB_NAME=blog_project
+DB_USER=your_username
+DB_PASS=your_password
+```
 
-### Articles
+Keep `.env` out of Git. Set `SESSION_SECRET` explicitly: the application includes a coursework fallback that should not be used for a deployed service.
 
-1. Users must be able to browse a list of all articles, regardless of whether they are logged in or not. If logged in, they should additionally be able to browse a list of their own articles.
+```sh
+npm start
+```
 
-2. When viewing the lists of articles identified above, users should be able to sort article lists by article title, username, and date (but only one at a time). Users should be able to sort articles without the browser window having to reload. Aim to follow UI/UX conventions for user-friendly sorting functionality. You may want to investigate how it has been implemented in similar interfaces. It is expected that the usability of your sorting options is intuitive and shows good interface design.
+Open `http://localhost:3000`. Quill is loaded from a CDN, so the rich-text editor requires access to that CDN.
 
-3. When logged in, users must be able to add new articles, and edit or delete existing articles which they have authored.
+The seed data includes demonstration accounts such as `alice`, `bob` and `charlie`, with the password `password`, as documented in [SETUP.md](SETUP.md). Use these only for local demonstration or create a new account through registration.
 
-4. When logged in, users must be able to like articles. An individual user should only be able to like the same article once. Once a user has liked an article, they should be able to see that they have already liked that article. The total number of likes from all users should be displayed somewhere so users can see how many likes each article has.
+## Example endpoints
 
-5. When creating or editing articles, users should be presented with a WYSIWYG (what you see is what you get) editor. The WYSIWYG editor should allow users to edit the formatting of an article without having to edit the HTML markup. There are a variety of styles of WYSIWYG editors and you may code your own from scratch or integrate an existing WYSIWYG library; there are a variety available online but you should research the range of options available. Investigate WYSIWYG options carefully as it is better to do a more robust implementation of a simple editor that fits with the style of your site and how articles should display than integrating a WYSIWYG editor that will allow a user to create content that will break your site or display incorrectly. The editor should (at minimum) allow users to:
-   + Add headings (or titles and subtitles)
-   + Make text bold, italic and underline
-   + Add bulleted and numbered lists
+| Method | Path | Purpose |
+| --- | --- | --- |
+| GET | `/article/` | List articles; also supports JSON for sorting |
+| POST | `/article/` | Create an article |
+| PUT | `/article/:id` | Update an owned article |
+| DELETE | `/article/:id` | Delete an owned article |
+| POST | `/article/:id/like` | Toggle the current user's like |
+| GET | `/comment/article/:articleId` | Retrieve article comments |
+| POST | `/comment/` | Add a comment or reply |
+| DELETE | `/comment/:id` | Delete a comment with permission checks |
 
-6. When creating new articles, users must be able to add an image to that article (if they choose - whether a user adds an image is up to them). When editing articles, users must be able to change, add, or remove this image. It is not compulsory to design it so users can add more than one image or add images inline with text. Implementing file uploads for multiple images can add complexity, so it is suggested that you consider the implementation of image uploads carefully so that uploaded images of varying sizes will display appropriately; you may even want to consider having some form of resizing or validation to ensure images display well.
+## Design documentation
 
+- [WIREFRAMES.md](WIREFRAMES.md): page layouts and interface planning.
+- [USABILITY.md](USABILITY.md): usability considerations.
+- [PROJECT_EXPLANATION.md](PROJECT_EXPLANATION.md): detailed implementation notes.
 
-### Comments
+## Project notes
 
-1. When logged in, users must be able to comment on articles. When viewing articles, comments associated with that article should also be viewable.
+Developed as a coursework project for Programming with Web Technology. This repository demonstrates frontend/backend integration, relational database design and asynchronous browser interactions.
 
-2. Comments must show the username of the commenter, and the timer & date the comment was made, in addition to the comment itself.
-
-3. Commenters should be able to delete their own comments; article authors should be able to delete any comments on their own articles.
-
-4. Users should be able to comment on comments up to two levels of nesting (i.e. comments on comments on comments). Any comment should be able to be replied to up to two levels of nesting. Comments should be listed chronologically below the article or comment they are replying to. Comments that are replies to comments should be indented and directly below the comment they are in reply to. An example of what two levels of nesting would look like is included below.
-   + comment...
-   + comment...
-     + comment...
-     + comment...
-       + comment...
-       + comment...
-     + comment...
-   + comment...
-     + comment...
-     + comment...
-
-5. Users should be able to show or hide comments for articles they're reading.
-
-
-### Usability
-
-1. The website must have a consistent look and feel, and must be responsive. The interface should respond well to the resizing of the screen and be usable throughout the range of common screen-widths. Consider how you can have a structured and systematic approach to creating CSS.
-
-2. The website must be user-friendly and have good usability. When adding the features, consider how such features have been implemented in other websites you've used before. What did you like about those websites? What could use improvement? It is suggested you investigate usability and review resources such as Neilsen's heuristics and / or PACMAD.
-
-3. It is suggested that you have a structured approach to interface design and consider creating "wireframe" outlines of your pages so you can plan what elements need to be on each page and how they are positioned. You may wish to create hand-drawn wireframe designs or investigate using a tool like Figma.
-
+The project currently has no automated test script. This README was checked against the implementation; a fresh end-to-end run was not performed during documentation updates. It is a local demonstration application: sessions use the default in-memory store, and production hardening and deployment are outside the current project scope.
